@@ -9,3 +9,14 @@ After using this template, you will need to :
  - [ ] Maybe rename the queries.
  - [ ] Send us a message here : [![Gitter](https://badges.gitter.im/nvim-treesitter/community.svg)](https://gitter.im/nvim-treesitter/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
  - [ ] Code your module !
+
+# Notes
+- rhs expression
+- statement
+- if/else
+- function
+- function prefixed with comments
+- consecutive lines of comments
+- function is line-wise
+- comment deletion is line-wise if it's the only thing on the line
+- class or struct or enum

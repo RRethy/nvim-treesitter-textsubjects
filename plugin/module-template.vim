@@ -1,1 +1,1 @@
-lua require("module-template").init()
+lua require("nvim-treesitter-textsubjects").init()
