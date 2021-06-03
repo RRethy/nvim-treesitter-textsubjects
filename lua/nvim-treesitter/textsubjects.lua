@@ -1,6 +1,6 @@
 local parsers = require('nvim-treesitter.parsers')
-local queries = require'nvim-treesitter.query'
-local ts_utils = require'nvim-treesitter.ts_utils'
+local queries = require('nvim-treesitter.query')
+local ts_utils = require('nvim-treesitter.ts_utils')
 
 local M = {}
 
@@ -69,13 +69,24 @@ function M.select(mode, sel_start, sel_end)
             sel_mode = 'V'
         else
             sel_mode = 'v'
-            start_col = start_col - startline_whitespace_len
             end_col = end_col + endline_whitespace_len
+            if startline_whitespace_len ~= startline_len then
+                start_col = start_col - startline_whitespace_len
+            end
+        end
+
+        if sel_mode == 'V' and
+            end_row + 1 < vim.fn.line('$') and
+            start_row > 0 and
+            string.match(vim.fn.getline(start_row), '^%s*$', 1) and
+            string.match(vim.fn.getline(end_row + 2), '^%s*$', 1) then
+            end_row = end_row + 1
         end
 
         best = {start_row, start_col, end_row, end_col}
         ts_utils.update_selection(bufnr, best, sel_mode)
     else
+        mode = mode == 'V' and 'V' or 'v'
         ts_utils.update_selection(bufnr, sel, mode)
     end
     vim.cmd('normal! o')

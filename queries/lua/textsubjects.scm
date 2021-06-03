@@ -7,23 +7,6 @@
     (#not-has-type? @head "comment")
     (#make-range! "range" @_start @_end))
 
-(
-    (
-        (_) @head
-        .
-        (comment) @_start
-        .
-        (comment)+
-        .
-        [
-            (local_function)
-            (function)
-        ] @_end
-    )
-    (#not-has-type? @head "comment")
-    (#make-range! "range" @_start @_end)
-)
-
 (([
     (table)
     (return_statement)
