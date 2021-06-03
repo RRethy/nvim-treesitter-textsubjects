@@ -21,9 +21,7 @@ local function does_surround(a, b)
         a_end_col > b_end_col
 end
 
--- this comment describes the function
--- this comment describes the function again
-function M.select(sel_bigger, sel_start, sel_end)
+function M.select(mode, sel_start, sel_end)
     local bufnr =  vim.api.nvim_get_current_buf()
     local lang = parsers.get_buf_lang(bufnr)
     if not lang then return end
@@ -47,8 +45,6 @@ function M.select(sel_bigger, sel_start, sel_end)
         local match = {match_start_row, match_start_col, match_end_row, match_end_col}
 
         -- match must cover an exclusively bigger range than the current selection
-        -- TODO allow reverse logic
-        -- print(vim.inspect(match))
         if does_surround(match, sel) then
             if not best or does_surround(best, match) then
                 best = match
@@ -56,21 +52,41 @@ function M.select(sel_bigger, sel_start, sel_end)
         end
     end
 
-    -- TODO change selection based on whitespace
-    -- TODO ensure cursor is at upper end of visual selection
     if best then
-        ts_utils.update_selection(bufnr, best, 'v')
+        -- we want to extend the selection to select any whitespace that we probably don't want
+        local start_row, start_col, end_row, end_col = unpack(best)
+
+        local startline = string.sub(vim.fn.getline(start_row + 1), 1, start_col)
+        local startline_len = #startline
+        local startline_whitespace_len = #string.match(startline, '(%s*)$', 1)
+
+        local endline = string.sub(vim.fn.getline(end_row + 1), end_col + 1, -1)
+        local endline_len = #endline
+        local endline_whitespace_len = #string.match(endline, '^(%s*)', 1)
+
+        local sel_mode
+        if startline_whitespace_len == startline_len and endline_whitespace_len == endline_len then
+            sel_mode = 'V'
+        else
+            sel_mode = 'v'
+            start_col = start_col - startline_whitespace_len
+            end_col = end_col + endline_whitespace_len
+        end
+
+        best = {start_row, start_col, end_row, end_col}
+        ts_utils.update_selection(bufnr, best, sel_mode)
     else
-        ts_utils.update_selection(bufnr, sel, 'v')
+        ts_utils.update_selection(bufnr, sel, mode)
     end
+    vim.cmd('normal! o')
 end
 
 function M.attach(bufnr, _)
     local buf = bufnr or vim.api.nvim_get_current_buf()
-    local cmd_o = ':lua require("nvim-treesitter.textsubjects").select(true, vim.fn.getpos("."), vim.fn.getpos("."))<cr>'
-    vim.api.nvim_buf_set_keymap(buf, 'o', ';', cmd_o, { silent = true, noremap = true  })
-    local cmd_x = ':lua require("nvim-treesitter.textsubjects").select(true, vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>'
-    vim.api.nvim_buf_set_keymap(buf, 'x', ';', cmd_x, { silent = true, noremap = true  })
+    local cmd_o = ':lua require("nvim-treesitter.textsubjects").select(vim.fn.mode(), vim.fn.getpos("."), vim.fn.getpos("."))<cr>'
+    vim.api.nvim_buf_set_keymap(buf, 'o', '.', cmd_o, { silent = true, noremap = true  })
+    local cmd_x = ':lua require("nvim-treesitter.textsubjects").select(vim.fn.mode(), vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>'
+    vim.api.nvim_buf_set_keymap(buf, 'x', '.', cmd_x, { silent = true, noremap = true  })
 end
 
 function M.detach(bufnr)
