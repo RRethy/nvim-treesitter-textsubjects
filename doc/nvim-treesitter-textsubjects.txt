@@ -1,0 +1,51 @@
+==============================================================================
+TEXT SUBJECTS                                  *nvim-treesitter-textsubjects*
+
+Location and syntax aware |text-objects| which handle surrounding whitespace.
+If the keymap is pressed repeatedly in visual mode, it will continue to
+increase the selection to the surrounding match.
+
+For example, >
+    function foo()
+        return true
+    end
+<
+If we begin in visual mode in `true`, it will first select the entire return
+value in visual mode, then when pressed again it will select the entire
+function definition in visual-line mode.
+
+Query files: `textsubjects-smart.scm`.
+Supported options:
+- enable: `true` or `false`.
+- disable: list of languages.
+- keymaps: map of keymaps to a tree-sitter query file names. See
+  |nvim-treesitter-textsubjects-query-files|.
+>
+  require'nvim-treesitter.configs'.setup {
+      textsubjects = {
+          enable = true,
+          keymaps = {
+              ['.'] = 'textsubjects-smart',
+          }
+      },
+  }
+
+==============================================================================
+TEXT SUBJECT QUERY FILES             *nvim-treesitter-textsubjects-query-files*
+
+Text subject query files are tree-sitter query files which define the range
+named `range`. For example, we can create a range over Lua comments with the
+following query: >
+
+    (((comment) @_start @_end) (#make-range! "range" @_start @_end))
+<
+-----------------------------+------------------------------------------------
+Builtin Text Subject Queries | Description                                                                  ~
+-----------------------------+------------------------------------------------
+`textsubjects-smart`           | Depending on your location it may select
+                             | comments, function calls/definitions, loops,
+                             | arguments, return values, if statements.
+-----------------------------+------------------------------------------------
+
+
+vim:tw=78:ts=8:expandtab:noet:ft=help:norl:

@@ -1,6 +1,7 @@
 local parsers = require('nvim-treesitter.parsers')
 local queries = require('nvim-treesitter.query')
 local ts_utils = require('nvim-treesitter.ts_utils')
+local configs = require('nvim-treesitter.configs')
 
 local M = {}
 
@@ -21,7 +22,7 @@ local function does_surround(a, b)
         a_end_col > b_end_col
 end
 
-function M.select(mode, sel_start, sel_end)
+function M.select(query, mode, sel_start, sel_end)
     local bufnr =  vim.api.nvim_get_current_buf()
     local lang = parsers.get_buf_lang(bufnr)
     if not lang then return end
@@ -38,7 +39,7 @@ function M.select(mode, sel_start, sel_end)
 
     local best
     -- TODO allow custom queries
-    local matches = queries.get_capture_matches_recursively(bufnr, '@range', 'textsubjects')
+    local matches = queries.get_capture_matches_recursively(bufnr, '@range', query)
     for _, m in pairs(matches) do
         local match_start_row, match_start_col = unpack(m.node.start_pos)
         local match_end_row, match_end_col = unpack(m.node.end_pos)
@@ -94,10 +95,12 @@ end
 
 function M.attach(bufnr, _)
     local buf = bufnr or vim.api.nvim_get_current_buf()
-    local cmd_o = ':lua require("nvim-treesitter.textsubjects").select(vim.fn.mode(), vim.fn.getpos("."), vim.fn.getpos("."))<cr>'
-    vim.api.nvim_buf_set_keymap(buf, 'o', '.', cmd_o, { silent = true, noremap = true  })
-    local cmd_x = ':lua require("nvim-treesitter.textsubjects").select(vim.fn.mode(), vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>'
-    vim.api.nvim_buf_set_keymap(buf, 'x', '.', cmd_x, { silent = true, noremap = true  })
+    for keymap, query in pairs(configs.get_module('textsubjects').keymaps) do
+        local cmd_o = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", vim.fn.mode(), vim.fn.getpos("."), vim.fn.getpos("."))<cr>', query)
+        vim.api.nvim_buf_set_keymap(buf, 'o', keymap, cmd_o, { silent = true, noremap = true  })
+        local cmd_x = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", vim.fn.mode(), vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>', query)
+        vim.api.nvim_buf_set_keymap(buf, 'x', keymap, cmd_x, { silent = true, noremap = true  })
+    end
 end
 
 function M.detach(bufnr)
