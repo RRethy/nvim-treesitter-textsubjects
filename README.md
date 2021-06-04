@@ -1,22 +1,20 @@
-# module-template
-A repository template to create you own nvim-treesitter module !
+<h1 align="center">
+  <a href="https://github.com/RRethy/nvim-treesitter-textsubjects">nvim-treesitter-textsubjects</a>
+</h1>
 
-Please find below the list of things you will need to do to get going !
+<h4 align="center">Location and syntax aware text objects which *do what you mean*</h4>
 
-# TODO (for you)
-After using this template, you will need to :
- - [ ] Rename every from `example-module` to the actual name of your module
- - [ ] Maybe rename the queries.
- - [ ] Send us a message here : [![Gitter](https://badges.gitter.im/nvim-treesitter/community.svg)](https://gitter.im/nvim-treesitter/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
- - [ ] Code your module !
+# Quick Start
 
-# Notes
-- rhs expression
-- statement
-- if/else
-- function
-- function prefixed with comments
-- consecutive lines of comments
-- function is line-wise
-- comment deletion is line-wise if it's the only thing on the line
-- class or struct or enum
+```lua
+require'nvim-treesitter.configs'.setup {
+    textsubjects = {
+        enable = true,
+        keymaps = {
+            ['.'] = 'textsubjects-smart',
+        }
+    },
+}
+```
+
+**TODO** finish README
