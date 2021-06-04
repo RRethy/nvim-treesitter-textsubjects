@@ -4,6 +4,9 @@
 
 <h4 align="center">Location and syntax aware text objects which *do what you mean*</h4>
 
+
+https://user-images.githubusercontent.com/21000943/120858931-8176c700-c551-11eb-97df-8acd77ec0cee.mov
+
 # Quick Start
 
 ```lua
