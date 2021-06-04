@@ -22,6 +22,44 @@ local function does_surround(a, b)
         a_end_col > b_end_col
 end
 
+local function extend_range_with_whitespace(range)
+    -- we want to extend the selection to select any whitespace that we probably don't want
+    local start_row, start_col, end_row, end_col = unpack(range)
+
+    -- everything before the selection on the same lines as the start of the range
+    local startline = string.sub(vim.fn.getline(start_row + 1), 1, start_col)
+    local startline_len = #startline
+    local startline_whitespace_len = #string.match(startline, '(%s*)$', 1)
+
+    -- everything after the selection on the same lines as the end of the range
+    local endline = string.sub(vim.fn.getline(end_row + 1), end_col + 1, -1)
+    local endline_len = #endline
+    local endline_whitespace_len = #string.match(endline, '^(%s*)', 1)
+
+    local sel_mode
+    if startline_whitespace_len == startline_len and endline_whitespace_len == endline_len then
+        -- the text objects is the only thing on the lines in the range so we
+        -- should use visual line mode
+        sel_mode = 'V'
+        if end_row + 1 < vim.fn.line('$') and
+            start_row > 0 and
+            string.match(vim.fn.getline(start_row), '^%s*$', 1) and
+            string.match(vim.fn.getline(end_row + 2), '^%s*$', 1) then
+            -- the selection has a blank line above and below, so we remove the one below
+            end_row = end_row + 1
+        end
+    else
+        sel_mode = 'v'
+        end_col = end_col + endline_whitespace_len
+        if startline_whitespace_len ~= startline_len then
+            start_col = start_col - startline_whitespace_len
+        end
+    end
+
+
+    return {start_row, start_col, end_row, end_col}, sel_mode
+end
+
 function M.select(query, mode, sel_start, sel_end)
     local bufnr =  vim.api.nvim_get_current_buf()
     local lang = parsers.get_buf_lang(bufnr)
@@ -38,7 +76,6 @@ function M.select(query, mode, sel_start, sel_end)
     local sel = {sel_start_row, sel_start_col, sel_end_row, sel_end_col}
 
     local best
-    -- TODO allow custom queries
     local matches = queries.get_capture_matches_recursively(bufnr, '@range', query)
     for _, m in pairs(matches) do
         local match_start_row, match_start_col = unpack(m.node.start_pos)
@@ -54,42 +91,13 @@ function M.select(query, mode, sel_start, sel_end)
     end
 
     if best then
-        -- we want to extend the selection to select any whitespace that we probably don't want
-        local start_row, start_col, end_row, end_col = unpack(best)
-
-        local startline = string.sub(vim.fn.getline(start_row + 1), 1, start_col)
-        local startline_len = #startline
-        local startline_whitespace_len = #string.match(startline, '(%s*)$', 1)
-
-        local endline = string.sub(vim.fn.getline(end_row + 1), end_col + 1, -1)
-        local endline_len = #endline
-        local endline_whitespace_len = #string.match(endline, '^(%s*)', 1)
-
-        local sel_mode
-        if startline_whitespace_len == startline_len and endline_whitespace_len == endline_len then
-            sel_mode = 'V'
-        else
-            sel_mode = 'v'
-            -- end_col = end_col + endline_whitespace_len
-            -- if startline_whitespace_len ~= startline_len then
-            --     start_col = start_col - startline_whitespace_len
-            -- end
-        end
-
-        if sel_mode == 'V' and
-            end_row + 1 < vim.fn.line('$') and
-            start_row > 0 and
-            string.match(vim.fn.getline(start_row), '^%s*$', 1) and
-            string.match(vim.fn.getline(end_row + 2), '^%s*$', 1) then
-            end_row = end_row + 1
-        end
-
-        best = {start_row, start_col, end_row, end_col}
-        ts_utils.update_selection(bufnr, best, sel_mode)
+        local new_best, sel_mode = extend_range_with_whitespace(best)
+        ts_utils.update_selection(bufnr, new_best, sel_mode)
     else
         mode = mode == 'V' and 'V' or 'v'
         ts_utils.update_selection(bufnr, sel, mode)
     end
+    -- I prefer going to start of text object while in visual mode
     vim.cmd('normal! o')
 end
 
@@ -105,8 +113,10 @@ end
 
 function M.detach(bufnr)
     local buf = bufnr or vim.api.nvim_get_current_buf()
-    vim.api.nvim_buf_del_keymap(buf, 'o', '.')
-    vim.api.nvim_buf_del_keymap(buf, 'x', '.')
+    for keymap in pairs(configs.get_module('textsubjects').keymaps) do
+        vim.api.nvim_buf_del_keymap(buf, 'o', keymap)
+        vim.api.nvim_buf_del_keymap(buf, 'x', keymap)
+    end
 end
 
 return M
