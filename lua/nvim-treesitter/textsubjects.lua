@@ -69,10 +69,10 @@ function M.select(mode, sel_start, sel_end)
             sel_mode = 'V'
         else
             sel_mode = 'v'
-            end_col = end_col + endline_whitespace_len
-            if startline_whitespace_len ~= startline_len then
-                start_col = start_col - startline_whitespace_len
-            end
+            -- end_col = end_col + endline_whitespace_len
+            -- if startline_whitespace_len ~= startline_len then
+            --     start_col = start_col - startline_whitespace_len
+            -- end
         end
 
         if sel_mode == 'V' and

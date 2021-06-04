@@ -1,3 +1,5 @@
+local queries = require("nvim-treesitter.query")
+
 local M = {}
 
 function M.init()
@@ -5,17 +7,10 @@ function M.init()
         textsubjects = {
             module_path = "nvim-treesitter.textsubjects",
             enable = false,
+            disable = {},
             is_supported = function(lang)
-                -- TODO make this closer nvim-treesitter-textobjects
-                if lang == 'lua' then
-                    return true
-                elseif lang == 'go' then
-                    return false
-                else
-                    return false
-                end
-                return false
-            end
+                return queries.has_query_files(lang, 'textsubjects') or true
+            end,
         }
     }
 end

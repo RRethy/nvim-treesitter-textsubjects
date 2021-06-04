@@ -10,26 +10,23 @@
     (#make-range! "range" @_start @_end))
 
 (([
-    (function_call)
-    (function_definition)
-    (local_function)
-    (function)
-    (do_statement)
-    (repeat_statement)
-    (while_statement)
-    (for_in_statement)
+    (call_expression)
+    (function_declaration)
+    (method_declaration)
+    (func_literal)
     (for_statement)
     (if_statement)
+    (expression_switch_statement)
 ] @_start @_end)
 (#make-range! "range" @_start @_end))
 
-((parameters (_) @_start @_end . ","? @_end)
+((parameter_list (_) @_start @_end . ","? @_end)
     (#make-range! "range" @_start @_end))
 
-((arguments (_) @_start @_end . ","? @_end)
+((argument_list (_) @_start @_end . ","? @_end)
     (#make-range! "range" @_start @_end))
 
-((table (_) @_start @_end . ["," ";"]? @_end)
+((literal_value (_) @_start @_end . ","? @_end)
     (#make-range! "range" @_start @_end))
 
 ((return_statement (_) @_start @_end)
