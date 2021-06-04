@@ -4,8 +4,7 @@
 
 <h4 align="center">Location and syntax aware text objects which *do what you mean*</h4>
 
-
-https://user-images.githubusercontent.com/21000943/120858931-8176c700-c551-11eb-97df-8acd77ec0cee.mov
+https://user-images.githubusercontent.com/21000943/120859418-2abdbd00-c552-11eb-82cc-c858de029ac8.mov
 
 # Quick Start
 
@@ -20,7 +19,7 @@ require'nvim-treesitter.configs'.setup {
 }
 ```
 
-This will enable the `.` text object which will select a different part of the syntax tree depending on your location in it. Whether the selection is by character or by line will also depend on your location. See below for more details on what parts of the syntax tree are matched.
+This will enable the `.` text object which will select a different part of the syntax tree depending on your location in it. This textobject will be available in visual mode and operator pending mode. Whether the selection is by character or by line will also depend on your location. See below for more details on what parts of the syntax tree are matched.
 
 # Text Subjects
 
