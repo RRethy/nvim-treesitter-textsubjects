@@ -51,7 +51,7 @@ local function extend_range_with_whitespace(range)
     else
         sel_mode = 'v'
         end_col = end_col + endline_whitespace_len
-        if startline_whitespace_len ~= startline_len then
+        if endline_whitespace_len == 0 and startline_whitespace_len ~= startline_len then
             start_col = start_col - startline_whitespace_len
         end
     end
@@ -66,13 +66,27 @@ function M.select(query, restore_visual, sel_start, sel_end)
     if not lang then return end
 
     local _, sel_start_row, sel_start_col = unpack(sel_start)
-    local _, sel_end_row, sel_end_col = unpack(sel_end)
-    if sel_start_row > sel_end_row or sel_start_row == sel_end_row and sel_start_col > sel_end_col then
-        sel_start_row, sel_start_col, sel_end_row, sel_end_col = sel_end_row, sel_end_col, sel_start_row, sel_start_col
+    local start_max_cols = #vim.fn.getline(sel_start_row)
+    -- visual line mode results in getpos("'>") returning a massive number so
+    -- we have to set it to the true end col
+    if start_max_cols < sel_start_col then
+        sel_start_col = start_max_cols
     end
+    -- tree-sitter uses zero-indexed rows
     sel_start_row = sel_start_row - 1
-    sel_end_row = sel_end_row - 1
+    -- tree-sitter uses zero-indexed cols for the start
     sel_start_col = sel_start_col - 1
+
+    local _, sel_end_row, sel_end_col = unpack(sel_end)
+    local end_max_cols = #vim.fn.getline(sel_end_row)
+    -- visual line mode results in getpos("'>") returning a massive number so
+    -- we have to set it to the true end col
+    if end_max_cols < sel_end_col then
+        sel_end_col = end_max_cols
+    end
+    -- tree-sitter uses zero-indexed rows
+    sel_end_row = sel_end_row - 1
+
     local sel = {sel_start_row, sel_start_col, sel_end_row, sel_end_col}
 
     local best
