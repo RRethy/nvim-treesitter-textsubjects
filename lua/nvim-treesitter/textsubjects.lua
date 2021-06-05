@@ -60,7 +60,7 @@ local function extend_range_with_whitespace(range)
     return {start_row, start_col, end_row, end_col}, sel_mode
 end
 
-function M.select(query, mode, sel_start, sel_end)
+function M.select(query, restore_visual, sel_start, sel_end)
     local bufnr =  vim.api.nvim_get_current_buf()
     local lang = parsers.get_buf_lang(bufnr)
     if not lang then return end
@@ -93,20 +93,21 @@ function M.select(query, mode, sel_start, sel_end)
     if best then
         local new_best, sel_mode = extend_range_with_whitespace(best)
         ts_utils.update_selection(bufnr, new_best, sel_mode)
+        -- I prefer going to start of text object while in visual mode
+        vim.cmd('normal! o')
     else
-        mode = mode == 'V' and 'V' or 'v'
-        ts_utils.update_selection(bufnr, sel, mode)
+        if restore_visual then
+            vim.cmd('normal! gv')
+        end
     end
-    -- I prefer going to start of text object while in visual mode
-    vim.cmd('normal! o')
 end
 
 function M.attach(bufnr, _)
     local buf = bufnr or vim.api.nvim_get_current_buf()
     for keymap, query in pairs(configs.get_module('textsubjects').keymaps) do
-        local cmd_o = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", vim.fn.mode(), vim.fn.getpos("."), vim.fn.getpos("."))<cr>', query)
+        local cmd_o = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", false, vim.fn.getpos("."), vim.fn.getpos("."))<cr>', query)
         vim.api.nvim_buf_set_keymap(buf, 'o', keymap, cmd_o, { silent = true, noremap = true  })
-        local cmd_x = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", vim.fn.mode(), vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>', query)
+        local cmd_x = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", true, vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>', query)
         vim.api.nvim_buf_set_keymap(buf, 'x', keymap, cmd_x, { silent = true, noremap = true  })
     end
 end
