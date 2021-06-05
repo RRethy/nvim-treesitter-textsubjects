@@ -19,15 +19,17 @@ require'nvim-treesitter.configs'.setup {
 }
 ```
 
-This will enable the `.` text object which will select a different part of the syntax tree depending on your location in it. This textobject will be available in visual mode and operator pending mode. Whether the selection is by character or by line will also depend on your location. See below for more details on what parts of the syntax tree are matched.
+This will enable the `.` text object (this is the mapping I use but `<cr>` is quite ergonomic too) which will select a different part of the syntax tree depending on your location in it. Whether the selection is by character or by line will also depend on your location in the syntax tree (handled by a few simple heuristics). See below for more details on what parts of the syntax tree are matched.
 
 # Text Subjects
+
+**Note**: Currently there is only a single builtin query but I'm open to adding more queries or support for another language, just open and issue or a PR and I can work with you to get the query working.
 
 ## textsubjects-smart
 
 **Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`.
 
-**Patterns**: function calls, function definitions, class definitions, loops, if statements, return values, arguments.
+**Patterns**: comments, consecutive line comments, function calls, function definitions, class definitions, loops, if statements, return values, arguments.
 
 See `queries/*/textsubjects-smart.scm` for full information on the query.
 
@@ -42,7 +44,9 @@ Ranges can be created as follows:
      (#make-range! "range" @_start @_end))
 ```
 
+See `queries/*/textsubjects-smart.scm` for examples or open an issue if you need any help writing a query.
+
 # Alternatives
 
-- [nvim-treesitter-textobjects](https://github.com/nvim-treesitter/nvim-treesitter-textobjects): I use this and it's a great plugin. If you want to target the textobject exactly then this is the way to go, however, it can quickly lead to having too many text object mappings. As well, it will always deal with whitespace based on the way you invoked it rather than handling this heuristically.
-- [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)-incremental-selection-mod: This is similar but doesn't act as a text objects, it's more strict when expanding the selection, too fined grain for my tastes, and doesn't handle whitespace around the text objects.
+- [nvim-treesitter-textobjects](https://github.com/nvim-treesitter/nvim-treesitter-textobjects): I still use this and it's a great plugin (especially the `lookahead` feature 😉). If you want to target the textobject exactly then this plugin is the way to go. However, it can quickly lead to having too many text object mappings (I had 8 before making this plugin) and it will always deal with whitespace based on the way you invoked it rather than handling this heuristically.
+- [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)-incremental-selection-mod: This is similar but doesn't act as a text objects. When incrementing the selection it will do so strictly by scope or by looking at the parent node which is often way too strict for practical use. For example, it will select all the arguments in `(`,`)` then can be expanded a few times to reach the next scope inside `{`,`}`, but these can both be selected more directly with `ib` and `iB` respectively so it would make more sense to skip them since the user probably doesn't want to select them. Incremental selection sounds nice but often isn't how people edit text (at least not me). On top of all this, it's strict with whitespace whereas this plugin will try to handle it heuristically.
