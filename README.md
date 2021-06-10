@@ -27,7 +27,7 @@ This will enable the `.` text object (this is the mapping I use but `<cr>` is qu
 
 ## textsubjects-smart
 
-**Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`.
+**Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `JavaScript / JSX`, `TypeScript / TSX`.
 
 **Patterns**: comments, consecutive line comments, function calls, function definitions, class definitions, loops, if statements, return values, arguments.
 
