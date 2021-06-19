@@ -14,16 +14,21 @@ require'nvim-treesitter.configs'.setup {
         enable = true,
         keymaps = {
             ['.'] = 'textsubjects-smart',
+            [';'] = 'textsubjects-big',
         }
     },
 }
 ```
 
-This will enable the `.` text object (this is the mapping I use but `<cr>` is quite ergonomic too) which will select a different part of the syntax tree depending on your location in it. Whether the selection is by character or by line will also depend on your location in the syntax tree (handled by a few simple heuristics). See below for more details on what parts of the syntax tree are matched.
+This will enable the `.` (this is the mapping I use but `<cr>` is quite ergonomic too) and `;` text objects which will select a different part of the syntax tree depending on your location in it. See below for what each query matches.
+
+Whether the selection is by character or by line will also depend on your location in the syntax tree (handled by a few simple heuristics). See below for more details on what parts of the syntax tree are matched.
+
+*Note: I know these names are a bit confusing, but naming them is quite difficult.*
 
 # Text Subjects
 
-**Note**: Currently there is only a single builtin query but I'm open to adding more queries or support for another language, just open and issue or a PR and I can work with you to get the query working.
+**Note**: I'm open to adding more queries or support for another language, just open and issue or a PR and I can work with you to get the query working.
 
 ## textsubjects-smart
 
@@ -32,6 +37,14 @@ This will enable the `.` text object (this is the mapping I use but `<cr>` is qu
 **Patterns**: comments, consecutive line comments, function calls, function definitions, class definitions, loops, if statements, return values, arguments.
 
 See `queries/*/textsubjects-smart.scm` for full information on the query.
+
+## textsubjects-smart
+
+**Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `JavaScript / JSX`, `TypeScript / TSX`.
+
+**Patterns**: Classes, structs, functions, methods.
+
+See `queries/*/textsubjects-big.scm` for full information on the query.
 
 ## Custom Query
 
