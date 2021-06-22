@@ -38,7 +38,7 @@ Whether the selection is by character or by line will also depend on your locati
 
 See `queries/*/textsubjects-smart.scm` for full information on the query.
 
-## textsubjects-smart
+## textsubjects-big
 
 **Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `JavaScript / JSX`, `TypeScript / TSX`.
 
