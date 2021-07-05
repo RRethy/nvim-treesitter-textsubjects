@@ -1,5 +1,6 @@
 (([
     (method)
+    (singleton_method)
     (module)
     (class)
 ] @_start @_end)
