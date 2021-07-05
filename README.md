@@ -14,7 +14,7 @@ require'nvim-treesitter.configs'.setup {
         enable = true,
         keymaps = {
             ['.'] = 'textsubjects-smart',
-            [';'] = 'textsubjects-big',
+            [';'] = 'textsubjects-container-outer',
         }
     },
 }
@@ -38,13 +38,13 @@ Whether the selection is by character or by line will also depend on your locati
 
 See `queries/*/textsubjects-smart.scm` for full information on the query.
 
-## textsubjects-big
+## textsubjects-container-outer
 
 **Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `JavaScript / JSX`, `TypeScript / TSX`.
 
 **Patterns**: Classes, structs, functions, methods.
 
-See `queries/*/textsubjects-big.scm` for full information on the query.
+See `queries/*/textsubjects-container-outer.scm` for full information on the query.
 
 ## Custom Query
 
