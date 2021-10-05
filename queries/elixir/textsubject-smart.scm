@@ -1,7 +1,6 @@
 (([
     (call (module) (do_block))
-    (call function: (function_identifier) (call) (do_block))
-    (call function: (function_identifier) (keyword_list))
+    (call function: (function_identifier) [(call) (binary_op) (do_block)])
     (anonymous_function)
     (stab_expression)
     (map)
