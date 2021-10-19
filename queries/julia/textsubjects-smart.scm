@@ -17,6 +17,7 @@
     (if_statement)
     (try_statement)
     (do_clause)
+    (array_expression)
 ] @_start @_end)
 (#make-range! "range" @_start @_end))
 
