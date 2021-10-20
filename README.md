@@ -32,7 +32,7 @@ Whether the selection is by character or by line will also depend on your locati
 
 ## textsubjects-smart
 
-**Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `JavaScript / JSX`, `TypeScript / TSX`.
+**Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `JavaScript / JSX`, `TypeScript / TSX`, `Elixir`, `Julia`.
 
 **Patterns**: comments, consecutive line comments, function calls, function definitions, class definitions, loops, if statements, return values, arguments.
 
@@ -40,7 +40,7 @@ See `queries/*/textsubjects-smart.scm` for full information on the query.
 
 ## textsubjects-container-outer
 
-**Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `JavaScript / JSX`, `TypeScript / TSX`.
+**Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `JavaScript / JSX`, `TypeScript / TSX`, `Elixir`, `Julia`.
 
 **Patterns**: Classes, structs, functions, methods.
 

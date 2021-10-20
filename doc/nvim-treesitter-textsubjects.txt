@@ -47,13 +47,13 @@ Builtin Text Subject Queries | Description                                      
                              | comments, function calls/definitions, loops,
                              | if statements, arguments, return values.
 ------------------------------------------------------------------------------
-`textsubjects-container-outer`             | Depending on your location it may select
+`textsubjects-container-outer` | Depending on your location it may select
                              | Classes, structs, functions, methods.
 -----------------------------+------------------------------------------------
 
 Supported Languages:
-    - `textsubjects-smart`: `Lua`, `Rust`, `Go`, `Ruby`, `Python`
-    - `textsubjects-container-outer`: `Lua`, `Rust`, `Go`, `Ruby`, `Python`
+    - `textsubjects-smart`: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `Elixir`, `Julia`
+    - `textsubjects-container-outer`: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `Elixir`, `Julia`
 
 
 vim:tw=78:ts=8:expandtab:noet:ft=help:norl:
