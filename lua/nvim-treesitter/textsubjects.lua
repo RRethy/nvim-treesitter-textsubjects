@@ -22,8 +22,8 @@ local function does_surround(a, b)
         a_end_col > b_end_col
 end
 
+--- extend_range_with_whitespace extends the selection to select any surrounding whitespace as part of the text object
 local function extend_range_with_whitespace(range)
-    -- we want to extend the selection to select any whitespace that we probably don't want
     local start_row, start_col, end_row, end_col = unpack(range)
 
     -- everything before the selection on the same lines as the start of the range
@@ -42,11 +42,14 @@ local function extend_range_with_whitespace(range)
         -- should use visual line mode
         sel_mode = 'V'
         if end_row + 1 < vim.fn.line('$') and
-            start_row > 0 and
-            string.match(vim.fn.getline(start_row), '^%s*$', 1) and
-            string.match(vim.fn.getline(end_row + 2), '^%s*$', 1) then
-            -- the selection has a blank line above and below, so we remove the one below
-            end_row = end_row + 1
+            start_row > 0 then
+            if string.match(vim.fn.getline(end_row + 2), '^%s*$', 1) then
+                -- we either have a blank line below AND above OR just below, in either case we want extend to the line below
+                end_row = end_row + 1
+            elseif string.match(vim.fn.getline(start_row), '^%s*$', 1) then
+                -- we have a blank line above AND NOT below, we extend to the line above
+                start_row = start_row - 1
+            end
         end
     else
         sel_mode = 'v'
