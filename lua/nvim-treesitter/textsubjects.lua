@@ -114,7 +114,7 @@ function M.select(query, restore_visual, sel_start, sel_end)
         if prev_selections[bufnr] == nil then
             prev_selections[bufnr] = {{new_best, sel_mode}}
         else
-            table.insert(prev_selections[bufnr], {{new_best, sel_mode}})
+            table.insert(prev_selections[bufnr], {new_best, sel_mode})
         end
         -- I prefer going to start of text object while in visual mode
         vim.cmd('normal! o')
@@ -125,18 +125,44 @@ function M.select(query, restore_visual, sel_start, sel_end)
     end
 end
 
-function M.prev_selection()
+function M.prev_select()
+    local bufnr =  vim.api.nvim_get_current_buf()
+    -- TODO: check if the buffer has been changed, if so do nothing because the selections are invalid
+    if prev_selections[bufnr] == nil then return end
+    if #prev_selections[bufnr] <= 1 then
+        prev_selections[bufnr] = nil
+        return
+    end
+
+    -- TODO: only pop off the stack if the current selection is a superset of the head of the stack
+    table.remove(prev_selections[bufnr])
+
+    local tbl = prev_selections[bufnr]
+    local sel, sel_mode = unpack(tbl[#tbl])
+    ts_utils.update_selection(bufnr, sel, sel_mode)
 end
 
 function M.attach(bufnr, _)
     local buf = bufnr or vim.api.nvim_get_current_buf()
-    for keymap, query in pairs(configs.get_module('textsubjects').keymaps) do
-        if type(keymap) == 'string' then
-            local cmd_o = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", false, vim.fn.getpos("."), vim.fn.getpos("."))<cr>', query)
-            vim.api.nvim_buf_set_keymap(buf, 'o', keymap, cmd_o, { silent = true, noremap = true  })
-            local cmd_x = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", true, vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>', query)
-            vim.api.nvim_buf_set_keymap(buf, 'x', keymap, cmd_x, { silent = true, noremap = true  })
-        elseif type(keymap) == 'table' then
+    for keymap, data in pairs(configs.get_module('textsubjects').keymaps) do
+        local prev_sel_keymap, query
+        if type(data) == 'string' then
+            query = data
+        elseif type(data) == 'table' then
+            query = data[1]
+            prev_sel_keymap = data.prev
+        end
+
+        local cmd_o = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", false, vim.fn.getpos("."), vim.fn.getpos("."))<cr>', query)
+        vim.api.nvim_buf_set_keymap(buf, 'o', keymap, cmd_o, { silent = true, noremap = true  })
+        local cmd_x = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", true, vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>', query)
+        vim.api.nvim_buf_set_keymap(buf, 'x', keymap, cmd_x, { silent = true, noremap = true  })
+
+        if prev_sel_keymap ~= nil then
+            cmd_o = 'lua require("nvim-treesitter.textsubjects").prev_select()<cr>'
+            vim.api.nvim_buf_set_keymap(buf, 'o', prev_sel_keymap, cmd_o, { silent = true, noremap = true  })
+            cmd_x = ':lua require("nvim-treesitter.textsubjects").prev_select()<cr>'
+            vim.api.nvim_buf_set_keymap(buf, 'x', prev_sel_keymap, cmd_x, { silent = true, noremap = true  })
         end
     end
 end
