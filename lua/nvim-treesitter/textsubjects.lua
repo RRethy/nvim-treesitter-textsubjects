@@ -4,6 +4,7 @@ local ts_utils = require('nvim-treesitter.ts_utils')
 local configs = require('nvim-treesitter.configs')
 
 local M = {}
+local prev_selections = {}
 
 --- @return boolean: true iff the range @a surrounds the range @b. @a == @b => false.
 local function does_surround(a, b)
@@ -110,6 +111,11 @@ function M.select(query, restore_visual, sel_start, sel_end)
     if best then
         local new_best, sel_mode = extend_range_with_whitespace(best)
         ts_utils.update_selection(bufnr, new_best, sel_mode)
+        if prev_selections[bufnr] == nil then
+            prev_selections[bufnr] = {{new_best, sel_mode}}
+        else
+            table.insert(prev_selections[bufnr], {{new_best, sel_mode}})
+        end
         -- I prefer going to start of text object while in visual mode
         vim.cmd('normal! o')
     else
@@ -119,13 +125,19 @@ function M.select(query, restore_visual, sel_start, sel_end)
     end
 end
 
+function M.prev_selection()
+end
+
 function M.attach(bufnr, _)
     local buf = bufnr or vim.api.nvim_get_current_buf()
     for keymap, query in pairs(configs.get_module('textsubjects').keymaps) do
-        local cmd_o = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", false, vim.fn.getpos("."), vim.fn.getpos("."))<cr>', query)
-        vim.api.nvim_buf_set_keymap(buf, 'o', keymap, cmd_o, { silent = true, noremap = true  })
-        local cmd_x = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", true, vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>', query)
-        vim.api.nvim_buf_set_keymap(buf, 'x', keymap, cmd_x, { silent = true, noremap = true  })
+        if type(keymap) == 'string' then
+            local cmd_o = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", false, vim.fn.getpos("."), vim.fn.getpos("."))<cr>', query)
+            vim.api.nvim_buf_set_keymap(buf, 'o', keymap, cmd_o, { silent = true, noremap = true  })
+            local cmd_x = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", true, vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>', query)
+            vim.api.nvim_buf_set_keymap(buf, 'x', keymap, cmd_x, { silent = true, noremap = true  })
+        elseif type(keymap) == 'table' then
+        end
     end
 end
 
