@@ -6,7 +6,7 @@
     (#not-has-type? @head "comment")
     (#make-range! "range" @_start @_end))
 
-((key_value value: _? @_start (_)* @_end)
+((key_value value: (_)* @_start (_)+ @_end)
     (#make-range! "range" @_start @_end))
 
 ((key_value) @_start @_end
