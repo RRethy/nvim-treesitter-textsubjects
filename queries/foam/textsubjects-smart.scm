@@ -12,3 +12,10 @@
 ((key_value) @_start @_end
     (#make-range! "range" @_start @_end)
 )
+
+((list item: (_)* @_start (_)+ @_end)
+    (#make-range! "range" @_start @_end))
+
+((list) @_start @_end
+    (#make-range! "range" @_start @_end)
+)
