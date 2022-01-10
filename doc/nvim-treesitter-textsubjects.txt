@@ -18,16 +18,18 @@ Query files: `textsubjects-smart.scm`, `textsubjects-container-outer.scm`.
 Supported options:
 - enable: `true` or `false`.
 - disable: list of languages.
+- prev_selection: string of key(s) to map
 - keymaps: map of keymaps to a tree-sitter query file names. See
   |nvim-treesitter-textsubjects-query-files|.
 >
   require'nvim-treesitter.configs'.setup {
       textsubjects = {
           enable = true,
+          prev_selection = ',', -- (Optional) select the previous selection
           keymaps = {
               ['.'] = 'textsubjects-smart',
               [';'] = 'textsubjects-container-outer',
-          }
+          },
       },
   }
 

@@ -12,10 +12,11 @@ https://user-images.githubusercontent.com/21000943/120859418-2abdbd00-c552-11eb-
 require'nvim-treesitter.configs'.setup {
     textsubjects = {
         enable = true,
+        prev_selection = ',', -- (Optional) select the previous selection
         keymaps = {
             ['.'] = 'textsubjects-smart',
             [';'] = 'textsubjects-container-outer',
-        }
+        },
     },
 }
 ```

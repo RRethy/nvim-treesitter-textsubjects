@@ -172,7 +172,6 @@ function M.prev_select(sel_start, sel_end)
     if prev_selections[bufnr] == nil then return end
 
     local head = selections[#selections][1]
-    print(vim.inspect(sel), vim.inspect(head), is_equal(sel, head), does_surround(sel, head))
     if is_equal(sel, head) or does_surround(sel, head) then
         table.remove(selections)
         if #selections == 0 then
@@ -189,38 +188,33 @@ end
 
 function M.attach(bufnr, _)
     local buf = bufnr or vim.api.nvim_get_current_buf()
-    for keymap, data in pairs(configs.get_module('textsubjects').keymaps) do
-        local prev_sel_keymap, query
-        if type(data) == 'string' then
-            query = data
-        elseif type(data) == 'table' then
-            query = data[1]
-            prev_sel_keymap = data.prev
-        end
-
+    for keymap, query in pairs(configs.get_module('textsubjects').keymaps) do
         local cmd_o = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", false, vim.fn.getpos("."), vim.fn.getpos("."))<cr>', query)
         vim.api.nvim_buf_set_keymap(buf, 'o', keymap, cmd_o, { silent = true, noremap = true  })
         local cmd_x = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", true, vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>', query)
         vim.api.nvim_buf_set_keymap(buf, 'x', keymap, cmd_x, { silent = true, noremap = true  })
+    end
 
-        if prev_sel_keymap ~= nil then
-            cmd_o = 'lua require("nvim-treesitter.textsubjects").prev_select(vim.fn.getpos("."), vim.fn.getpos("."))<cr>'
-            vim.api.nvim_buf_set_keymap(buf, 'o', prev_sel_keymap, cmd_o, { silent = true, noremap = true  })
-            cmd_x = ':lua require("nvim-treesitter.textsubjects").prev_select(vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>'
-            vim.api.nvim_buf_set_keymap(buf, 'x', prev_sel_keymap, cmd_x, { silent = true, noremap = true  })
-        end
+    local prev_selection = configs.get_module('textsubjects').prev_selection
+    if prev_selection ~= nil and #prev_selection > 0 then
+        local cmd_o = 'lua require("nvim-treesitter.textsubjects").prev_select(vim.fn.getpos("."), vim.fn.getpos("."))<cr>'
+        vim.api.nvim_buf_set_keymap(buf, 'o', prev_selection, cmd_o, { silent = true, noremap = true  })
+        local cmd_x = ':lua require("nvim-treesitter.textsubjects").prev_select(vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>'
+        vim.api.nvim_buf_set_keymap(buf, 'x', prev_selection, cmd_x, { silent = true, noremap = true  })
     end
 end
 
 function M.detach(bufnr)
     local buf = bufnr or vim.api.nvim_get_current_buf()
-    for keymap, data in pairs(configs.get_module('textsubjects').keymaps) do
+    for keymap, _ in pairs(configs.get_module('textsubjects').keymaps) do
         vim.api.nvim_buf_del_keymap(buf, 'o', keymap)
         vim.api.nvim_buf_del_keymap(buf, 'x', keymap)
-        if type(data) == 'table' and data.prev ~= nil then
-            vim.api.nvim_buf_del_keymap(buf, 'o', data.prev)
-            vim.api.nvim_buf_del_keymap(buf, 'x', data.prev)
-        end
+    end
+
+    local prev_selection = configs.get_module('textsubjects').prev_selection
+    if prev_selection ~= nil and #prev_selection > 0 then
+        vim.api.nvim_buf_del_keymap(buf, 'o', prev_selection)
+        vim.api.nvim_buf_del_keymap(buf, 'x', prev_selection)
     end
 end
 
