@@ -10,7 +10,12 @@ local M = {}
 -- hard to implement
 local prev_selections = {}
 
---- @return boolean: true iff the range @a surrounds the range @b. @a == @b => false.
+--- @return boolean: true iff the range @a is equal to the range @b
+local function is_equal(a, b)
+    return a[1] == b[1] and a[2] == b[2] and a[3] == b[3] and a[4] == b[4]
+end
+
+--- @return boolean: true iff the range @a strictly surrounds the range @b. @a == @b => false.
 local function does_surround(a, b)
     local a_start_row, a_start_col, a_end_row, a_end_col = a[1], a[2], a[3], a[4]
     local b_start_row, b_start_col, b_end_row, b_end_col = b[1], b[2], b[3], b[4]
@@ -145,22 +150,35 @@ end
 function M.prev_select(sel_start, sel_end)
     local bufnr =  vim.api.nvim_get_current_buf()
     local selections = prev_selections[bufnr]
-    if selections == nil then return end
-
     local sel = normalize_selection(sel_start, sel_end)
+    local changedtick = vim.api.nvim_buf_get_changedtick(bufnr)
 
-    -- TODO: handled changedtick
-    if does_surround(sel, selections[#selections][1]) then
+    -- TODO: this could use extmarks
+    -- We are removing any previous selections which have a different
+    -- changedtick because that means the text is *probably* different and the
+    -- selection range *may* now be invalid
+    while selections ~= nil and selections[#selections].changedtick ~= changedtick do
         table.remove(selections)
         if #selections == 0 then
             prev_selections[bufnr] = nil
-            -- TODO: check how this works at the bottom level
+        end
+    end
+
+    if prev_selections[bufnr] == nil then return end
+
+    local head = selections[#selections][1]
+    if is_equal(sel, head) or does_surround(sel, head) then
+        table.remove(selections)
+        if #selections == 0 then
+            prev_selections[bufnr] = nil
+            vim.cmd("normal! v")
             return
         end
     end
 
     local new_sel, sel_mode = unpack(selections[#selections])
     ts_utils.update_selection(bufnr, new_sel, sel_mode)
+    vim.cmd('normal! o')
 end
 
 function M.attach(bufnr, _)
