@@ -4,7 +4,7 @@
 
 <h4 align="center">Location and syntax aware text objects which *do what you mean*</h4>
 
-https://user-images.githubusercontent.com/21000943/120859418-2abdbd00-c552-11eb-82cc-c858de029ac8.mov
+https://user-images.githubusercontent.com/21000943/148718905-afb4eed4-0adf-4dad-8f37-5179f9ddd055.mov
 
 # Quick Start
 
