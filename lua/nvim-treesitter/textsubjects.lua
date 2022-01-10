@@ -55,9 +55,11 @@ local function extend_range_with_whitespace(range)
             start_row > 0 then
             if string.match(vim.fn.getline(end_row + 2), '^%s*$', 1) then
                 -- we either have a blank line below AND above OR just below, in either case we want extend to the line below
+                end_col = math.max(#vim.fn.getline(end_row + 2), 1)
                 end_row = end_row + 1
             elseif string.match(vim.fn.getline(start_row), '^%s*$', 1) then
                 -- we have a blank line above AND NOT below, we extend to the line above
+                start_col = math.max(#vim.fn.getline(start_row), 1)
                 start_row = start_row - 1
             end
         end
@@ -123,7 +125,8 @@ function M.select(query, restore_visual, sel_start, sel_end)
     if best then
         local new_best, sel_mode = extend_range_with_whitespace(best)
         ts_utils.update_selection(bufnr, new_best, sel_mode)
-        if prev_selections[bufnr] == nil then
+        local selections = prev_selections[bufnr]
+        if selections == nil or not does_surround(new_best, selections[#selections][1]) then
             prev_selections[bufnr] = {
                 {
                     changedtick = vim.api.nvim_buf_get_changedtick(bufnr),
@@ -132,7 +135,7 @@ function M.select(query, restore_visual, sel_start, sel_end)
                 }
             }
         else
-            table.insert(prev_selections[bufnr], {
+            table.insert(selections, {
                 changedtick = vim.api.nvim_buf_get_changedtick(bufnr),
                 new_best,
                 sel_mode
@@ -151,6 +154,8 @@ function M.prev_select(sel_start, sel_end)
     local bufnr =  vim.api.nvim_get_current_buf()
     local selections = prev_selections[bufnr]
     local sel = normalize_selection(sel_start, sel_end)
+    if #vim.fn.getline(sel[1] + 1) == 0 then sel[2] = 1 end
+    if #vim.fn.getline(sel[3] + 1) == 0 then sel[4] = 1 end
     local changedtick = vim.api.nvim_buf_get_changedtick(bufnr)
 
     -- TODO: this could use extmarks
@@ -167,6 +172,7 @@ function M.prev_select(sel_start, sel_end)
     if prev_selections[bufnr] == nil then return end
 
     local head = selections[#selections][1]
+    print(vim.inspect(sel), vim.inspect(head), is_equal(sel, head), does_surround(sel, head))
     if is_equal(sel, head) or does_surround(sel, head) then
         table.remove(selections)
         if #selections == 0 then
