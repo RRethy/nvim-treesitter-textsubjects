@@ -4,6 +4,10 @@ local ts_utils = require('nvim-treesitter.ts_utils')
 local configs = require('nvim-treesitter.configs')
 
 local M = {}
+-- array of { changedtick = number, selection: number, mode: string }
+-- TODO: we could use extmarks with each selection to avoid using buf
+-- changedtick, it would be a lot smarter and more accurate, but it'd be pretty
+-- hard to implement
 local prev_selections = {}
 
 --- @return boolean: true iff the range @a surrounds the range @b. @a == @b => false.
@@ -64,11 +68,7 @@ local function extend_range_with_whitespace(range)
     return {start_row, start_col, end_row, end_col}, sel_mode
 end
 
-function M.select(query, restore_visual, sel_start, sel_end)
-    local bufnr =  vim.api.nvim_get_current_buf()
-    local lang = parsers.get_buf_lang(bufnr)
-    if not lang then return end
-
+local function normalize_selection(sel_start, sel_end)
     local _, sel_start_row, sel_start_col = unpack(sel_start)
     local start_max_cols = #vim.fn.getline(sel_start_row)
     -- visual line mode results in getpos("'>") returning a massive number so
@@ -91,8 +91,15 @@ function M.select(query, restore_visual, sel_start, sel_end)
     -- tree-sitter uses zero-indexed rows
     sel_end_row = sel_end_row - 1
 
-    local sel = {sel_start_row, sel_start_col, sel_end_row, sel_end_col}
+    return {sel_start_row, sel_start_col, sel_end_row, sel_end_col}
+end
 
+function M.select(query, restore_visual, sel_start, sel_end)
+    local bufnr =  vim.api.nvim_get_current_buf()
+    local lang = parsers.get_buf_lang(bufnr)
+    if not lang then return end
+
+    local sel = normalize_selection(sel_start, sel_end)
     local best
     local matches = queries.get_capture_matches_recursively(bufnr, '@range', query)
     for _, m in pairs(matches) do
@@ -112,9 +119,19 @@ function M.select(query, restore_visual, sel_start, sel_end)
         local new_best, sel_mode = extend_range_with_whitespace(best)
         ts_utils.update_selection(bufnr, new_best, sel_mode)
         if prev_selections[bufnr] == nil then
-            prev_selections[bufnr] = {{new_best, sel_mode}}
+            prev_selections[bufnr] = {
+                {
+                    changedtick = vim.api.nvim_buf_get_changedtick(bufnr),
+                    new_best,
+                    sel_mode
+                }
+            }
         else
-            table.insert(prev_selections[bufnr], {new_best, sel_mode})
+            table.insert(prev_selections[bufnr], {
+                changedtick = vim.api.nvim_buf_get_changedtick(bufnr),
+                new_best,
+                sel_mode
+            })
         end
         -- I prefer going to start of text object while in visual mode
         vim.cmd('normal! o')
@@ -125,21 +142,25 @@ function M.select(query, restore_visual, sel_start, sel_end)
     end
 end
 
-function M.prev_select()
+function M.prev_select(sel_start, sel_end)
     local bufnr =  vim.api.nvim_get_current_buf()
-    -- TODO: check if the buffer has been changed, if so do nothing because the selections are invalid
-    if prev_selections[bufnr] == nil then return end
-    if #prev_selections[bufnr] <= 1 then
-        prev_selections[bufnr] = nil
-        return
+    local selections = prev_selections[bufnr]
+    if selections == nil then return end
+
+    local sel = normalize_selection(sel_start, sel_end)
+
+    -- TODO: handled changedtick
+    if does_surround(sel, selections[#selections][1]) then
+        table.remove(selections)
+        if #selections == 0 then
+            prev_selections[bufnr] = nil
+            -- TODO: check how this works at the bottom level
+            return
+        end
     end
 
-    -- TODO: only pop off the stack if the current selection is a superset of the head of the stack
-    table.remove(prev_selections[bufnr])
-
-    local tbl = prev_selections[bufnr]
-    local sel, sel_mode = unpack(tbl[#tbl])
-    ts_utils.update_selection(bufnr, sel, sel_mode)
+    local new_sel, sel_mode = unpack(selections[#selections])
+    ts_utils.update_selection(bufnr, new_sel, sel_mode)
 end
 
 function M.attach(bufnr, _)
@@ -159,9 +180,9 @@ function M.attach(bufnr, _)
         vim.api.nvim_buf_set_keymap(buf, 'x', keymap, cmd_x, { silent = true, noremap = true  })
 
         if prev_sel_keymap ~= nil then
-            cmd_o = 'lua require("nvim-treesitter.textsubjects").prev_select()<cr>'
+            cmd_o = 'lua require("nvim-treesitter.textsubjects").prev_select(vim.fn.getpos("."), vim.fn.getpos("."))<cr>'
             vim.api.nvim_buf_set_keymap(buf, 'o', prev_sel_keymap, cmd_o, { silent = true, noremap = true  })
-            cmd_x = ':lua require("nvim-treesitter.textsubjects").prev_select()<cr>'
+            cmd_x = ':lua require("nvim-treesitter.textsubjects").prev_select(vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>'
             vim.api.nvim_buf_set_keymap(buf, 'x', prev_sel_keymap, cmd_x, { silent = true, noremap = true  })
         end
     end
@@ -169,9 +190,13 @@ end
 
 function M.detach(bufnr)
     local buf = bufnr or vim.api.nvim_get_current_buf()
-    for keymap in pairs(configs.get_module('textsubjects').keymaps) do
+    for keymap, data in pairs(configs.get_module('textsubjects').keymaps) do
         vim.api.nvim_buf_del_keymap(buf, 'o', keymap)
         vim.api.nvim_buf_del_keymap(buf, 'x', keymap)
+        if type(data) == 'table' and data.prev ~= nil then
+            vim.api.nvim_buf_del_keymap(buf, 'o', data.prev)
+            vim.api.nvim_buf_del_keymap(buf, 'x', data.prev)
+        end
     end
 end
 
