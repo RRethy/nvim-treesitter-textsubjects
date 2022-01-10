@@ -165,11 +165,15 @@ function M.prev_select(sel_start, sel_end)
     while selections ~= nil and selections[#selections].changedtick ~= changedtick do
         table.remove(selections)
         if #selections == 0 then
-            prev_selections[bufnr] = nil
+            selections = nil
         end
     end
 
-    if prev_selections[bufnr] == nil then return end
+    if selections == nil then
+        prev_selections[bufnr] = nil
+        vim.cmd("normal! v")
+        return
+    end
 
     local head = selections[#selections][1]
     if is_equal(sel, head) or does_surround(sel, head) then
