@@ -11,7 +11,7 @@ function M.init()
             prev_selection = nil,
             keymaps = {},
             is_supported = function(lang)
-                return queries.has_query_files(lang, 'textsubjects')
+                return queries.has_query_files(lang, 'textsubjects-container-outer') or queries.has_query_files(lang, 'textsubjects-smart')
             end,
         }
     }
