@@ -1,0 +1,5 @@
+((macro_definition . "{" . (_) @_start @_end (_)? @_end . "}" . ) (#make-range! "range" @_start @_end))
+((block . "{" . (_) @_start @_end (_)? @_end . "}" . ) (#make-range! "range" @_start @_end))
+((field_declaration_list . "{" . (_) @_start @_end (_)? @_end . ","? @_end . "}" . ) (#make-range! "range" @_start @_end))
+((enum_variant_list . "{" . (_) @_start @_end (_)? @_end . ","? @_end . "}" . ) (#make-range! "range" @_start @_end))
+((declaration_list . "{" . (_) @_start @_end (_)? @_end . ","? @_end . "}" . ) (#make-range! "range" @_start @_end))
