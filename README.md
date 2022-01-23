@@ -16,6 +16,7 @@ require('nvim-treesitter.configs').setup {
         keymaps = {
             ['.'] = 'textsubjects-smart',
             [';'] = 'textsubjects-container-outer',
+            ['i;'] = 'textsubjects-container-inner',
         },
     },
 }
@@ -46,6 +47,14 @@ See `queries/*/textsubjects-smart.scm` for full information on the query.
 **Patterns**: Classes, structs, functions, methods.
 
 See `queries/*/textsubjects-container-outer.scm` for full information on the query.
+
+## textsubjects-container-inner
+
+**Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`.
+
+**Patterns**: Inside Classes, structs, functions, methods.
+
+See `queries/*/textsubjects-container-inner.scm` for full information on the query.
 
 ## Custom Query
 
