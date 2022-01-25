@@ -32,9 +32,21 @@ Whether the selection is by character or by line will also depend on your locati
 
 **Note**: I'm open to adding more queries or support for another language, just open and issue or a PR and I can work with you to get the query working.
 
-## textsubjects-smart
+|                      | `container-inner`    | `container-outer`    | `smart`        |
+| -------------------- | -------------------- | -------------------- | -------------- |
+| `elixir`             | :white_large_square: | :green_square:       | :green_square: |
+| `foam`               | :white_large_square: | :green_square:       | :green_square: |
+| `go`                 | :green_square:       | :green_square:       | :green_square: |
+| `javascript` / `jsx` | :white_large_square: | :green_square:       | :green_square: |
+| `julia`              | :white_large_square: | :green_square:       | :green_square: |
+| `lua`                | :green_square:       | :green_square:       | :green_square: |
+| `python`             | :green_square:       | :green_square:       | :green_square: |
+| `ruby`               | :green_square:       | :green_square:       | :green_square: |
+| `rust`               | :green_square:       | :green_square:       | :green_square: |
+| `scss`               | :white_large_square: | :white_large_square: | :green_square: |
+| `typescript` / `tsx` | :white_large_square: | :green_square:       | :green_square: |
 
-**Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `JavaScript / JSX`, `TypeScript / TSX`, `Elixir`, `Julia`.
+## textsubjects-smart
 
 **Patterns**: comments, consecutive line comments, function calls, function definitions, class definitions, loops, if statements, return values, arguments.
 
@@ -42,15 +54,11 @@ See `queries/*/textsubjects-smart.scm` for full information on the query.
 
 ## textsubjects-container-outer
 
-**Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`, `JavaScript / JSX`, `TypeScript / TSX`, `Elixir`, `Julia`.
-
 **Patterns**: Classes, structs, functions, methods.
 
 See `queries/*/textsubjects-container-outer.scm` for full information on the query.
 
 ## textsubjects-container-inner
-
-**Supported Languages**: `Lua`, `Rust`, `Go`, `Ruby`, `Python`.
 
 **Patterns**: Inside Classes, structs, functions, methods.
 
