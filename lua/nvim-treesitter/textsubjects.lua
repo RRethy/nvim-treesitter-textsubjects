@@ -101,23 +101,45 @@ local function normalize_selection(sel_start, sel_end)
     return {sel_start_row, sel_start_col, sel_end_row, sel_end_col}
 end
 
-function M.select(query, restore_visual, sel_start, sel_end)
+function M.select(queryname, restore_visual, sel_start, sel_end)
     local bufnr =  vim.api.nvim_get_current_buf()
     local lang = parsers.get_buf_lang(bufnr)
-    if not lang then return end
+    if not lang then
+        return
+    end
+
+    -- Search up the first the closest non-whitespace text before the cursor
+    local _, row, col = unpack(vim.fn.getpos('.'))
+    row = row - 1
+    col = col - 1
+
+    local lang_tree = parsers.get_parser(bufnr):language_for_range({row, col, row, col})
+    lang = lang_tree:lang()
+    if not lang then
+        return
+    end
+
+    local root = ts_utils.get_root_for_position(row, col, lang_tree)
+    if not root then
+        return
+    end
+
+    local query = queries.get_query(lang, queryname)
+    if not query then
+        return
+    end
 
     local sel = normalize_selection(sel_start, sel_end)
     local best
-    local matches = queries.get_capture_matches_recursively(bufnr, '@range', query)
-    for _, m in pairs(matches) do
-        local match_start_row, match_start_col = unpack(m.node.start_pos)
-        local match_end_row, match_end_col = unpack(m.node.end_pos)
-        local match = {match_start_row, match_start_col, match_end_row, match_end_col}
 
+    local root_range = {root:range()}
+
+    for _, node, _ in query:iter_captures(root, bufnr, root_range[1], root_range[3] + 1) do
+        local range = {node:range()}
         -- match must cover an exclusively bigger range than the current selection
-        if does_surround(match, sel) then
-            if not best or does_surround(best, match) then
-                best = match
+        if does_surround(range, sel) then
+            if not best or does_surround(best, range) then
+                best = range
             end
         end
     end
