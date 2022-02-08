@@ -11,7 +11,31 @@ function M.init()
             prev_selection = nil,
             keymaps = {},
             is_supported = function(lang)
-                return queries.has_query_files(lang, 'textsubjects-container-outer') or queries.has_query_files(lang, 'textsubjects-smart')
+                local seen = {}
+                local function has_nested_textsubjects_language(nested_lang)
+                    if queries.has_query_files(nested_lang, 'textsubjects-smart')
+                        or queries.has_query_files(nested_lang, 'textsubjects-container-outer')
+                        or queries.has_query_files(nested_lang, 'textsubjects-container-inner') then
+                        return true
+                    end
+                    if seen[nested_lang] then
+                        return false
+                    end
+                    seen[nested_lang] = true
+
+                    if queries.has_query_files(nested_lang, 'injections') then
+                        local query = queries.get_query(nested_lang, 'injections')
+                        for _, capture in ipairs(query.info.captures) do
+                            if capture == 'language' or has_nested_textsubjects_language(capture) then
+                                return true
+                            end
+                        end
+                    end
+
+                    return false
+                end
+
+                return has_nested_textsubjects_language(lang)
             end,
         }
     }
