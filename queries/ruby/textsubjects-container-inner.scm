@@ -8,3 +8,5 @@
 
 ((class name: (_) superclass: (_) . (_) @_start @_end (_)? @_end . "end") (#make-range! "range" @_start @_end))
 ((class name: (_) !superclass . (_) @_start @_end (_)? @_end . "end") (#make-range! "range" @_start @_end))
+
+((singleton_class value: (_) . (_) @_start @_end (_)? @_end . "end") (#make-range! "range" @_start @_end))
