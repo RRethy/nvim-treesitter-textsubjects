@@ -41,6 +41,7 @@ Whether the selection is by character or by line will also depend on your locati
 | `julia`              | :white_large_square: | :green_square:       | :green_square: |
 | `lua`                | :green_square:       | :green_square:       | :green_square: |
 | `python`             | :green_square:       | :green_square:       | :green_square: |
+| `r`                  | :green_square:       | :green_square:       | :green_square: |
 | `ruby`               | :green_square:       | :green_square:       | :green_square: |
 | `rust`               | :green_square:       | :green_square:       | :green_square: |
 | `scss`               | :white_large_square: | :white_large_square: | :green_square: |
