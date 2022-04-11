@@ -34,6 +34,8 @@ Whether the selection is by character or by line will also depend on your locati
 
 |                      | `container-inner`    | `container-outer`    | `smart`        |
 | -------------------- | -------------------- | -------------------- | -------------- |
+| `c`                  | :green_square:       | :green_square:       | :green_square: |
+| `cpp`                | :green_square:       | :green_square:       | :green_square: |
 | `elixir`             | :white_large_square: | :green_square:       | :green_square: |
 | `foam`               | :white_large_square: | :green_square:       | :green_square: |
 | `go`                 | :green_square:       | :green_square:       | :green_square: |
