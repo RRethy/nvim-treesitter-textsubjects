@@ -49,6 +49,7 @@ Whether the selection is by character or by line will also depend on your locati
 | `rust`               | :green_square:       | :green_square:       | :green_square: |
 | `scss`               | :white_large_square: | :white_large_square: | :green_square: |
 | `typescript` / `tsx` | :white_large_square: | :green_square:       | :green_square: |
+| `fennel`             | :green_square:       | :green_square:       | :green_square: |
 
 ## textsubjects-smart
 
