@@ -23,7 +23,6 @@
     (while_expression)
     (loop_expression)
     (if_expression)
-    (if_let_expression)
     (match_expression)
     (match_arm)
     (struct_item)
