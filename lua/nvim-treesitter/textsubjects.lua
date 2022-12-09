@@ -201,7 +201,7 @@ function M.attach(bufnr, _)
 
     local prev_selection = configs.get_module('textsubjects').prev_selection
     if prev_selection ~= nil and #prev_selection > 0 then
-        local cmd_o = 'lua require("nvim-treesitter.textsubjects").prev_select(vim.fn.getpos("."), vim.fn.getpos("."))<cr>'
+        local cmd_o = ':lua require("nvim-treesitter.textsubjects").prev_select(vim.fn.getpos("."), vim.fn.getpos("."))<cr>'
         vim.api.nvim_buf_set_keymap(buf, 'o', prev_selection, cmd_o, { silent = true, noremap = true  })
         local cmd_x = ':lua require("nvim-treesitter.textsubjects").prev_select(vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>'
         vim.api.nvim_buf_set_keymap(buf, 'x', prev_selection, cmd_x, { silent = true, noremap = true  })
