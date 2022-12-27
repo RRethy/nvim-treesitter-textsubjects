@@ -31,3 +31,6 @@
 
 ((return_statement (_) @_start @_end)
     (#make-range! "range" @_start @_end))
+
+((import_declaration) @_start @_end
+    (#make-range! "range" @_start @_end))
