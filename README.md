@@ -6,6 +6,13 @@
 
 https://user-images.githubusercontent.com/21000943/148718905-afb4eed4-0adf-4dad-8f37-5179f9ddd055.mov
 
+# Installation
+
+* If using vim-plug: Plug 'RRethy/nvim-treesitter-textsubjects'
+* If using packer.nvim: use {'RRethy/nvim-treesitter-textsubjects'}
+
+#
+
 # Quick Start
 
 ```lua
