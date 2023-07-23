@@ -12,7 +12,7 @@ https://user-images.githubusercontent.com/21000943/148718905-afb4eed4-0adf-4dad-
 require('nvim-treesitter.configs').setup {
     textsubjects = {
         enable = true,
-        prev_selection = ',', -- (Optional) keymap to select the previous selection
+        prev_selection = { keymap = ',', desc = "Previous textsubject" }, -- (Optional) keymap to select the previous selection
         keymaps = {
             ['.'] = { query = 'textsubjects-smart', desc = "Smart textsubject"},
             [';'] = { query = 'textsubjects-container-outer', desc = "Outer textsubject" },
