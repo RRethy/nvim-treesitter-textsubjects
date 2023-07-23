@@ -193,10 +193,10 @@ end
 function M.attach(bufnr, _)
     local buf = bufnr or vim.api.nvim_get_current_buf()
     for keymap, config in pairs(configs.get_module('textsubjects').keymaps) do
-        local cmd_o = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", false, vim.fn.getpos("."), vim.fn.getpos("."))<cr>', config.query)
-        vim.api.nvim_buf_set_keymap(buf, 'o', keymap, cmd_o, { silent = true, noremap = true, desc = config.desc  })
-        local cmd_x = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", true, vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>', config.query)
-        vim.api.nvim_buf_set_keymap(buf, 'x', keymap, cmd_x, { silent = true, noremap = true, desc = config.desc  })
+        local cmd_o = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", false, vim.fn.getpos("."), vim.fn.getpos("."))<cr>', config.query or config[1])
+        vim.api.nvim_buf_set_keymap(buf, 'o', keymap, cmd_o, { silent = true, noremap = true, desc = config.desc or config.query and config[1] or config[2] })
+        local cmd_x = string.format(':lua require("nvim-treesitter.textsubjects").select("%s", true, vim.fn.getpos("\'<"), vim.fn.getpos("\'>"))<cr>', config.query or config[1])
+        vim.api.nvim_buf_set_keymap(buf, 'x', keymap, cmd_x, { silent = true, noremap = true, desc = config.desc or config.query and config[1] or config[2] })
     end
 
     local prev_selection = configs.get_module('textsubjects').prev_selection
