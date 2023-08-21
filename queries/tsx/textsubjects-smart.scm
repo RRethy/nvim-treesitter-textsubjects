@@ -24,7 +24,6 @@
     (interface_declaration)
     ; jsx
     (jsx_element)
-    (jsx_fragment)
     (jsx_self_closing_element)
     (jsx_attribute)
 ] @_start @_end)
