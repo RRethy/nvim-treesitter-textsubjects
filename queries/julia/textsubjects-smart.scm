@@ -45,8 +45,5 @@
 ((vector_expression (_) @_start @_end . ","? @_end)
     (#make-range! "range" @_start @_end))
 
-((type_argument_list (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
-
 ((return_statement (_) @_start @_end)
     (#make-range! "range" @_start @_end))
