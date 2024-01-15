@@ -24,6 +24,7 @@
     (tuple_expression)
     (vector_expression)
     (compound_statement)
+    (let_statement)
 ] @_start @_end)
 (#make-range! "range" @_start @_end))
 
