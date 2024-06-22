@@ -5,8 +5,8 @@
 ; file
 ; See https://github.com/tree-sitter/tree-sitter/issues/1138
 (((_) @head . (line_comment) @_start . (line_comment)+ @_end (_) @tail)
-    (#not-has-type? @tail "line_comment")
-    (#not-has-type? @head "line_comment")
+    (#not-kind-eq? @tail "line_comment")
+    (#not-kind-eq? @head "line_comment")
     (#make-range! "range" @_start @_end))
 
 (([
