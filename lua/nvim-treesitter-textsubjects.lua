@@ -30,6 +30,15 @@ function M.init()
                                 return true
                             end
                         end
+
+                        for _, info in ipairs(query.info.patterns) do
+                            -- we're looking for #set injection.language <whatever>
+                            if info[1][1] == "set!" and info[1][2] == "injection.language" then
+                                if has_nested_textsubjects_language(info[1][3]) then
+                                    return true
+                                end
+                            end
+                        end
                     end
 
                     return false
