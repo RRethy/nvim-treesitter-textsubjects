@@ -42,6 +42,7 @@ Whether the selection is by character or by line will also depend on your locati
 | `javascript` / `jsx` | :white_large_square: | :green_square:       | :green_square: |
 | `julia`              | :white_large_square: | :green_square:       | :green_square: |
 | `lua`                | :green_square:       | :green_square:       | :green_square: |
+| `markdown`           | :white_large_square: | :white_large_square: | :green_square: |
 | `php`                | :green_square:       | :green_square:       | :green_square: |
 | `python`             | :green_square:       | :green_square:       | :green_square: |
 | `r`                  | :green_square:       | :green_square:       | :green_square: |
