@@ -8,23 +8,31 @@ https://user-images.githubusercontent.com/21000943/148718905-afb4eed4-0adf-4dad-
 
 # Quick Start
 
+**Note**: This plugin requires [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) to be installed and set up.
+
+No configuration is required, just install the plugin.
+
+It will setup the following text objects:
+- `;` will select a syntactical container (class, function, etc.) depending on your location in the syntax tree.
+- `i;` will select the body of a syntactical container depending on your location in the syntax tree.
+- `.` will select the most relevant part of the syntax tree depending on your location in it.
+
+It will also setup a mapping for `,` to repeat the last selection.
+
+# Configuration
+
+If you want to override the defaults, you can use the following configuration and modify it as needed.
+
 ```lua
-require('nvim-treesitter.configs').setup {
-    textsubjects = {
-        enable = true,
-        prev_selection = ',', -- (Optional) keymap to select the previous selection
-        keymaps = {
-            ['.'] = 'textsubjects-smart',
-            [';'] = 'textsubjects-container-outer',
-            ['i;'] = { 'textsubjects-container-inner', desc = "Select inside containers (classes, functions, etc.)" },
-        },
+require('nvim-treesitter-textsubjects').configure({
+    prev_selection = ',',
+    keymaps = {
+        ['.'] = 'textsubjects-smart',
+        [';'] = 'textsubjects-container-outer',
+        ['i;'] = 'textsubjects-container-inner',
     },
-}
+})
 ```
-
-This will enable the `.` (this is the mapping I use but `<cr>` is quite ergonomic too) and `;` text objects which will select a different part of the syntax tree depending on your location in it. See below for what each query matches.
-
-Whether the selection is by character or by line will also depend on your location in the syntax tree (handled by a few simple heuristics). See below for more details on what parts of the syntax tree are matched.
 
 *Note: I know these names are a bit confusing, but naming them is quite difficult.*
 

@@ -1,7 +1,7 @@
 local parsers = require('nvim-treesitter.parsers')
 local queries = require('nvim-treesitter.query')
 local ts_utils = require('nvim-treesitter.ts_utils')
-local configs = require('nvim-treesitter.configs')
+local config = require('textsubjects.config')
 
 local M = {}
 -- array of { changedtick = number, selection: number, mode: string }
@@ -192,7 +192,7 @@ end
 
 function M.attach(bufnr, _)
     local buf = bufnr or vim.api.nvim_get_current_buf()
-    for keymap, query in pairs(configs.get_module('textsubjects').keymaps) do
+    for keymap, query in pairs(config.get().keymaps) do
         local query_name, desc
         if type(query) == 'table' then
             query_name = query[1]
@@ -211,7 +211,7 @@ function M.attach(bufnr, _)
         vim.api.nvim_buf_set_keymap(buf, 'x', keymap, cmd_x, { silent = true, noremap = true, desc = desc })
     end
 
-    local prev_selection = configs.get_module('textsubjects').prev_selection
+    local prev_selection = config.get().prev_selection
     if prev_selection ~= nil and #prev_selection > 0 then
         local cmd_o =
         ':lua require("nvim-treesitter.textsubjects").prev_select(vim.fn.getpos("."), vim.fn.getpos("."))<cr>'
@@ -225,17 +225,21 @@ function M.attach(bufnr, _)
 end
 
 function M.detach(bufnr)
-    local buf = bufnr or vim.api.nvim_get_current_buf()
-    for keymap, _ in pairs(configs.get_module('textsubjects').keymaps) do
-        vim.api.nvim_buf_del_keymap(buf, 'o', keymap)
-        vim.api.nvim_buf_del_keymap(buf, 'x', keymap)
-    end
+    -- we wrap this because nvim_buf_del_keymap can error if we haven't yet created the keymaps
+    -- it's a big tedious to check for each keymap so we just wrap it in a pcall
+    pcall(function()
+        local buf = bufnr or vim.api.nvim_get_current_buf()
+        for keymap, _ in pairs(config.get().keymaps) do
+            vim.api.nvim_buf_del_keymap(buf, 'o', keymap)
+            vim.api.nvim_buf_del_keymap(buf, 'x', keymap)
+        end
 
-    local prev_selection = configs.get_module('textsubjects').prev_selection
-    if prev_selection ~= nil and #prev_selection > 0 then
-        vim.api.nvim_buf_del_keymap(buf, 'o', prev_selection)
-        vim.api.nvim_buf_del_keymap(buf, 'x', prev_selection)
-    end
+        local prev_selection = config.get().prev_selection
+        if prev_selection ~= nil and #prev_selection > 0 then
+            vim.api.nvim_buf_del_keymap(buf, 'o', prev_selection)
+            vim.api.nvim_buf_del_keymap(buf, 'x', prev_selection)
+        end
+    end)
 end
 
 return M
