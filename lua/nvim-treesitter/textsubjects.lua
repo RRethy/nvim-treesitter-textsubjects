@@ -1,6 +1,3 @@
-local parsers = require('nvim-treesitter.parsers')
-local queries = require('nvim-treesitter.query')
-local ts_utils = require('nvim-treesitter.ts_utils')
 local config = require('textsubjects.config')
 
 local M = {}
@@ -101,17 +98,145 @@ local function normalize_selection(sel_start, sel_end)
     return { sel_start_row, sel_start_col, sel_end_row, sel_end_col }
 end
 
+-- Helper function to update selection (replacement for ts_utils.update_selection)
+local function update_selection(bufnr, range, mode)
+    local start_row, start_col, end_row, end_col = unpack(range)
+
+    -- Convert to 1-indexed for vim
+    vim.api.nvim_win_set_cursor(0, { start_row + 1, start_col })
+
+    if mode == 'V' then
+        vim.cmd('normal! V')
+        vim.api.nvim_win_set_cursor(0, { end_row + 1, end_col })
+    else
+        vim.cmd('normal! v')
+        vim.api.nvim_win_set_cursor(0, { end_row + 1, end_col })
+    end
+end
+
+-- Extract a tree-sitter node from either userdata or table wrapper
+local function extract_node(node_or_table)
+    if type(node_or_table) == "userdata" then
+        return node_or_table
+    elseif type(node_or_table) == "table" and node_or_table[1] and type(node_or_table[1]) == "userdata" then
+        return node_or_table[1]
+    end
+    return nil
+end
+
+-- Helper function to process make-range! directives and get captures
+local function get_capture_matches_recursively(bufnr, capture_name, query_name)
+    local matches = {}
+
+    -- Strip @ from capture name
+    local strip_capture = capture_name:sub(2)
+
+    local function process_language(lang, tree, root)
+        local ok, query = pcall(vim.treesitter.query.get, lang, query_name)
+        if not ok or not query then
+            return
+        end
+
+        -- Iterate over matches
+        for pattern, match, metadata in query:iter_matches(root, bufnr) do
+            local prepared_match = {}
+
+            -- Get all captures from the match
+            for id, node in pairs(match) do
+                local name = query.captures[id]
+                if name then
+                    prepared_match[name] = node
+                end
+            end
+
+            -- Process make-range! directives from the query patterns
+            -- This creates virtual "range" captures from @_start and @_end captures
+            local preds = query.info.patterns[pattern]
+            if preds then
+                for _, pred in ipairs(preds) do
+                    if pred[1] == "make-range!" and #pred >= 4 then
+                        local range_name = pred[2]
+                        -- pred[3] and pred[4] are capture IDs (numbers)
+                        local start_capture_id = pred[3]
+                        local end_capture_id = pred[4]
+
+                        -- Look up the nodes from the match table
+                        local start_node = extract_node(match[start_capture_id])
+                        local end_node = extract_node(match[end_capture_id])
+
+                        if start_node and end_node then
+                            local start_row, start_col = start_node:start()
+                            local end_row, end_col = end_node:end_()
+
+                            -- Add this as a new capture in prepared_match
+                            -- This mimics the old TSRange behavior
+                            prepared_match[range_name] = {
+                                start_pos = { start_row, start_col },
+                                end_pos = { end_row, end_col }
+                            }
+                        end
+                    end
+                end
+            end
+
+            -- If this match has the capture we're looking for, add it to matches
+            -- The make-range! directive should have created a "range" capture
+            if prepared_match[strip_capture] then
+                local node_or_range = prepared_match[strip_capture]
+                table.insert(matches, {
+                    node = node_or_range
+                })
+            end
+        end
+    end
+
+    -- Get the parser
+    local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+    if not ok then
+        return matches
+    end
+
+    -- Process all language trees
+    parser:for_each_tree(function(tree, lang_tree)
+        local lang = lang_tree:lang()
+        local root = tree:root()
+        process_language(lang, tree, root)
+    end)
+
+    return matches
+end
+
 function M.select(query, restore_visual, sel_start, sel_end)
     local bufnr = vim.api.nvim_get_current_buf()
-    local lang = parsers.get_buf_lang(bufnr)
+
+    -- Get language using native API
+    local lang = vim.bo[bufnr].filetype
+    local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+    if ok and parser then
+        lang = parser:lang() or lang
+    end
     if not lang then return end
 
     local sel = normalize_selection(sel_start, sel_end)
     local best
-    local matches = queries.get_capture_matches_recursively(bufnr, '@range', query)
+    local matches = get_capture_matches_recursively(bufnr, '@range', query)
     for _, m in pairs(matches) do
-        local match_start_row, match_start_col = unpack(m.node.start_pos)
-        local match_end_row, match_end_col = unpack(m.node.end_pos)
+        local match_start_row, match_start_col, match_end_row, match_end_col
+
+        -- Handle both regular nodes and virtual range objects
+        if m.node.start_pos and m.node.end_pos then
+            -- Virtual range object created by make-range!
+            match_start_row, match_start_col = unpack(m.node.start_pos)
+            match_end_row, match_end_col = unpack(m.node.end_pos)
+        elseif type(m.node) == "userdata" then
+            -- Regular tree-sitter node
+            match_start_row, match_start_col = m.node:start()
+            match_end_row, match_end_col = m.node:end_()
+        else
+            -- Unknown type, skip
+            goto continue
+        end
+
         local match = { match_start_row, match_start_col, match_end_row, match_end_col }
 
         -- match must cover an exclusively bigger range than the current selection
@@ -120,11 +245,13 @@ function M.select(query, restore_visual, sel_start, sel_end)
                 best = match
             end
         end
+
+        ::continue::
     end
 
     if best then
         local new_best, sel_mode = extend_range_with_whitespace(best)
-        ts_utils.update_selection(bufnr, new_best, sel_mode)
+        update_selection(bufnr, new_best, sel_mode)
         local selections = prev_selections[bufnr]
         if selections == nil or not does_surround(new_best, selections[#selections][1]) then
             prev_selections[bufnr] = {
@@ -186,7 +313,7 @@ function M.prev_select(sel_start, sel_end)
     end
 
     local new_sel, sel_mode = unpack(selections[#selections])
-    ts_utils.update_selection(bufnr, new_sel, sel_mode)
+    update_selection(bufnr, new_sel, sel_mode)
     vim.cmd('normal! o')
 end
 
