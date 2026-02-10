@@ -14,16 +14,6 @@ function M.set(config_overrides)
 end
 
 function M.get()
-    local ok, configs = pcall(require, 'nvim-treesitter.configs')
-    if not ok then
-        return config
-    end
-
-    local ts_config = configs.get_module('textsubjects')
-    if ts_config then
-        return ts_config
-    end
-
     return config
 end
 

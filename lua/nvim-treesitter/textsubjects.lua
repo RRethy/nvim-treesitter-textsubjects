@@ -1,6 +1,3 @@
-local parsers = require('nvim-treesitter.parsers')
-local queries = require('nvim-treesitter.query')
-local ts_utils = require('nvim-treesitter.ts_utils')
 local config = require('textsubjects.config')
 
 local M = {}
@@ -101,19 +98,98 @@ local function normalize_selection(sel_start, sel_end)
     return { sel_start_row, sel_start_col, sel_end_row, sel_end_col }
 end
 
+local function get_buf_lang(bufnr)
+    return vim.treesitter.language.get_lang(vim.bo[bufnr].filetype)
+end
+
+---Encapsulate the range represented by a capture match
+---@class MatchRange
+---@field start_row integer
+---@field start_col integer
+---@field end_row integer
+---@field end_col integer
+
+
+---Get all ranges defined by the given query for the given root node
+---@param bufnr integer
+---@param query_name string Query to extract ranges from
+---@param lang string Language of the
+---@param root TSNode Root node to query
+---@return Range4[]
+local function get_query_ranges(bufnr, query_name, lang, root)
+    local query = vim.treesitter.query.get(lang, query_name)
+    if not query then return {} end
+
+    local ranges = {}
+
+    for _, _, metadata, _ in query:iter_matches(root, bufnr) do
+        local all_ranges = metadata.ranges --[[@as table<string, Range6[]>]]
+        local our_ranges = all_ranges and all_ranges["range"]
+        local range = our_ranges and our_ranges[1]
+
+        if range then
+            table.insert(ranges, { range[1], range[2], range[4], range[5] })
+        end
+    end
+
+    return ranges
+end
+
+---Get matches for all languages in the buffer recursively
+---@param bufnr integer Buffer whose contents to query
+---@param query_name string Query to extract captures from
+---@return Range4[]
+local function get_query_ranges_recursively(bufnr, query_name)
+    local parser = vim.treesitter.get_parser(bufnr)
+    if not parser then return {} end
+
+    local matches = {}
+
+    parser:for_each_tree(function(tree, lang_tree)
+        local lang = lang_tree:lang()
+        local root = tree:root()
+
+        vim.list_extend(matches, get_query_ranges(bufnr, query_name, lang, root))
+    end)
+
+    return matches
+end
+
+---@param bufnr integer
+---@param range Range4
+---@param sel_mode? "v" | "V"
+local function update_selection(bufnr, range, sel_mode)
+    local start_row, start_col, end_row, end_col = unpack(range)
+    local selection_mode = sel_mode or 'v'
+
+    if vim.api.nvim_get_mode().mode ~= sel_mode then
+        vim.cmd.normal({ sel_mode, bang = true })
+    end
+
+    if end_col == 0 then
+        -- If end_col is 0, we need to go past the end of the previous line
+        end_row = end_row - 1
+        end_col = #vim.api.nvim_buf_get_lines(bufnr, end_row, end_row + 1, true)[1] + 1
+    end
+
+    local exclusive_offset = selection_mode == 'v' and vim.o.selection == 'exclusive' and 1 or 0
+    end_col = end_col - exclusive_offset
+
+    -- Row indices are 1-based for nvim_win_set_cursor
+    vim.api.nvim_win_set_cursor(0, { start_row + 1, start_col })
+    vim.cmd.normal({ 'o', bang = true })
+    vim.api.nvim_win_set_cursor(0, { end_row + 1, end_col })
+end
+
 function M.select(query, restore_visual, sel_start, sel_end)
     local bufnr = vim.api.nvim_get_current_buf()
-    local lang = parsers.get_buf_lang(bufnr)
+    local lang = get_buf_lang(bufnr)
     if not lang then return end
 
     local sel = normalize_selection(sel_start, sel_end)
     local best
-    local matches = queries.get_capture_matches_recursively(bufnr, '@range', query)
-    for _, m in pairs(matches) do
-        local match_start_row, match_start_col = unpack(m.node.start_pos)
-        local match_end_row, match_end_col = unpack(m.node.end_pos)
-        local match = { match_start_row, match_start_col, match_end_row, match_end_col }
-
+    local matches = get_query_ranges_recursively(bufnr, query)
+    for _, match in pairs(matches) do
         -- match must cover an exclusively bigger range than the current selection
         if does_surround(match, sel) then
             if not best or does_surround(best, match) then
@@ -124,7 +200,7 @@ function M.select(query, restore_visual, sel_start, sel_end)
 
     if best then
         local new_best, sel_mode = extend_range_with_whitespace(best)
-        ts_utils.update_selection(bufnr, new_best, sel_mode)
+        update_selection(bufnr, new_best, sel_mode)
         local selections = prev_selections[bufnr]
         if selections == nil or not does_surround(new_best, selections[#selections][1]) then
             prev_selections[bufnr] = {
@@ -186,7 +262,7 @@ function M.prev_select(sel_start, sel_end)
     end
 
     local new_sel, sel_mode = unpack(selections[#selections])
-    ts_utils.update_selection(bufnr, new_sel, sel_mode)
+    update_selection(bufnr, new_sel, sel_mode)
     vim.cmd('normal! o')
 end
 
