@@ -1,15 +1,13 @@
-((comment) @_start @_end
-     (#make-range! "range" @_start @_end))
+(comment) @range
 
 ; TODO This query doesn't work for comment groups at the start and end of a
 ; file
 ; See https://github.com/tree-sitter/tree-sitter/issues/1138
-(((_) @head . (comment) @_start . (comment)+ @_end (_) @tail)
+(((_) @head . (comment)+ @range (_) @tail)
     (#not-kind-eq? @tail "comment")
-    (#not-kind-eq? @head "comment")
-    (#make-range! "range" @_start @_end))
+    (#not-kind-eq? @head "comment"))
 
-(([
+([
     (function_declaration)
     (expression_statement)
     (lexical_declaration)
@@ -23,23 +21,16 @@
     (jsx_element)
     (jsx_self_closing_element)
     (jsx_attribute)
-] @_start @_end)
-(#make-range! "range" @_start @_end))
+] @range)
 
-((formal_parameters (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(formal_parameters (_) @range . ","? @range)
 
-((arguments (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(arguments (_) @range . ","? @range)
 
-((object (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(object (_) @range . ","? @range)
 
-((array (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(array (_) @range . ","? @range)
 
-((class_body (_) @_start @_end . ";"? @_end)
-    (#make-range! "range" @_start @_end))
+(class_body (_) @range . ";"? @range)
 
-((return_statement (_) @_start @_end)
-    (#make-range! "range" @_start @_end))
+(return_statement (_) @range)

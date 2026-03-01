@@ -1,15 +1,13 @@
-((comment) @_start @_end
-    (#make-range! "range" @_start @_end))
+(comment) @range
 
 ; TODO This query doesn't work for comment groups at the start and end of a
 ; file
 ; See https://github.com/tree-sitter/tree-sitter/issues/1138
-(((_) @head . (comment) @_start . (comment)+ @_end (_) @tail)
+(((_) @head . (comment)+ @range (_) @tail)
     (#not-kind-eq? @tail "comment")
-    (#not-kind-eq? @head "comment")
-    (#make-range! "range" @_start @_end))
+    (#not-kind-eq? @head "comment"))
 
-(([
+([
     ; definition blocks
     (declaration)
     (function_definition)
@@ -51,31 +49,29 @@
     ; delimited lists
     (argument_list)
     (parameter_list)
-] @_start @_end)
-    (#make-range! "range" @_start @_end))
+] @range)
 
 ; elements of delimited lists
 ([
-    (argument_list (_) @_start @_end . ","? @_end)
-    (enumerator_list (_) @_start @_end . ","? @_end)
-    (initializer_list (_) @_start @_end . ","? @_end)
-    (parameter_list (_) @_start @_end . ","? @_end)
-] (#make-range! "range" @_start @_end))
+    (argument_list (_) @range . ","? @range)
+    (enumerator_list (_) @range . ","? @range)
+    (initializer_list (_) @range . ","? @range)
+    (parameter_list (_) @range . ","? @range)
+])
 
 ; contents of keyword statements
-((return_statement (_) @_start @_end)
-    (#make-range! "range" @_start @_end))
+(return_statement (_) @range)
 
 ; the parenthesized parts of control flow statements
 ([
-    (do_statement condition: (_) @_start @_end)
-    (if_statement condition: (_) @_start @_end)
-    (switch_statement condition: (_) @_start @_end)
-    (while_statement condition: (_) @_start @_end)
+    (do_statement condition: (_) @range)
+    (if_statement condition: (_) @range)
+    (switch_statement condition: (_) @range)
+    (while_statement condition: (_) @range)
 
     ; for contents, initializer, condition and update
-    (for_statement . "(" @_start (_)* ")" @_end . (_))
-    (for_statement . "(" . (_) @_start @_end (_)? @_end . ";" . (_))
-    (for_statement condition: (_) @_start @_end . ";"? @_end)
-    (for_statement update: (_) @_start @_end)
-] (#make-range! "range" @_start @_end))
+    (for_statement . "(" @range (_)* @range ")" @range . (_))
+    (for_statement . "(" . (_) @range (_)? @range . ";" . (_))
+    (for_statement condition: (_) @range . ";"? @range)
+    (for_statement update: (_) @range)
+])

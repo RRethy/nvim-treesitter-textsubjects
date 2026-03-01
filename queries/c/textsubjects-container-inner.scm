@@ -1,22 +1,20 @@
 ; {} blocks
-([
-    (compound_statement . "{" . (_) @_start @_end (_)? @_end . "}" .)
-    (declaration_list . "{" . (_) @_start @_end (_)? @_end . "}" . )
-    (enumerator_list . "{" . (_) @_start @_end (_)? @_end . "}" . )
-    (field_declaration_list . "{" . (_) @_start @_end (_)? @_end . "}" . )
-    (initializer_list . "{" . (_) @_start @_end (_)? @_end . "}" . )
-] (#make-range! "range" @_start @_end))
+(compound_statement "{" @range.extended (_)+ @range "}" @range.extended)
+(declaration_list "{" @range.extended (_)+ @range "}" @range.extended)
+(enumerator_list "{" @range.extended _+ @range "}" @range.extended)
+(field_declaration_list "{" @range.extended (_)+ @range "}" @range.extended)
+(initializer_list "{" @range.extended . _+ @range . "}" @range.extended)
 
 ; () blocks
-([
-    (argument_list . "(" . (_) @_start @_end (_)? @_end . ")" . )
-    (parameter_list . "(" . (_) @_start @_end (_)? @_end . ")" . )
-    (sizeof_expression (parenthesized_expression (_) @_start @_end)) ; sizeof(expr)
-    (sizeof_expression . "(" . (_) @_start @_end . ")" . ) ; sizeof(type)
-    (do_statement condition: (parenthesized_expression (_) @_start @_end))
-    (if_statement condition: (parenthesized_expression (_) @_start @_end))
-    (switch_statement condition: (parenthesized_expression (_) @_start @_end))
-    (while_statement condition: (parenthesized_expression (_) @_start @_end))
-    (for_statement . "(" . (_) @_start @_end (_)? @_end . ")" . (_))
-] (#make-range! "range" @_start @_end))
+(argument_list "(" @range.extended _+ @range ")" @range.extended)
+(parameter_list "(" @range.extended _+ @range ")" @range.extended)
 
+(sizeof_expression (parenthesized_expression "(" @range.extended (_) @range ")" @range.extended)) ; sizeof(expr)
+(sizeof_expression "(" @range.extended (_) @range ")" @range.extended) ; sizeof(type)
+
+(do_statement condition: (parenthesized_expression "(" @range.extended _+ @range ")" @range.extended))
+(if_statement condition: (parenthesized_expression "(" @range.extended _+ @range ")" @range.extended))
+(switch_statement condition: (parenthesized_expression "(" @range.extended _+ @range ")" @range.extended))
+(while_statement condition: (parenthesized_expression "(" @range.extended _+ @range ")" @range.extended))
+
+(for_statement "(" @range.extended _+ @range ")" @range.extended . (_))

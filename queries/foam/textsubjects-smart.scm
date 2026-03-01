@@ -1,21 +1,11 @@
-((comment) @_start @_end
-     (#make-range! "range" @_start @_end))
+(comment) @range
 
-(((_) @head . (comment) @_start . (comment)+ @_end (_) @tail)
+(((_) @head . (comment)+ @range (_) @tail)
     (#not-kind-eq? @tail "comment")
-    (#not-kind-eq? @head "comment")
-    (#make-range! "range" @_start @_end))
+    (#not-kind-eq? @head "comment"))
 
-((key_value value: (_)* @_start (_)+ @_end)
-    (#make-range! "range" @_start @_end))
+(key_value value: (_)+ @range)
 
-((key_value) @_start @_end
-    (#make-range! "range" @_start @_end)
-)
+(list item: (_)+ @range)
 
-((list item: (_)* @_start (_)+ @_end)
-    (#make-range! "range" @_start @_end))
-
-((list) @_start @_end
-    (#make-range! "range" @_start @_end)
-)
+(list) @range

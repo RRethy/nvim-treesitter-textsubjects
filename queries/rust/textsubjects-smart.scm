@@ -1,18 +1,15 @@
-((line_comment) @_start @_end
-     (#make-range! "range" @_start @_end))
+(line_comment) @range
 
-((block_comment) @_start @_end
-     (#make-range! "range" @_start @_end))
+(block_comment) @range
 
 ; TODO This query doesn't work for comment groups at the start and end of a
 ; file
 ; See https://github.com/tree-sitter/tree-sitter/issues/1138
-(((_) @head . (line_comment) @_start . (line_comment)+ @_end (_) @tail)
+(((_) @head . (line_comment)+ @range (_) @tail)
     (#not-kind-eq? @tail "line_comment")
-    (#not-kind-eq? @head "line_comment")
-    (#make-range! "range" @_start @_end))
+    (#not-kind-eq? @head "line_comment"))
 
-(([
+([
     (call_expression)
     (generic_function)
     (macro_invocation)
@@ -28,17 +25,12 @@
     (struct_item)
     (enum_item)
     (impl_item)
-] @_start @_end)
-(#make-range! "range" @_start @_end))
+] @range)
 
-((parameters (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(parameters (_) @range . ","?)
 
-((arguments (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(arguments (_) @range . ","?)
 
-((array_expression (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(array_expression (_) @range . ","?)
 
-((return_expression (_) @_start @_end)
-    (#make-range! "range" @_start @_end))
+(return_expression (_) @range)

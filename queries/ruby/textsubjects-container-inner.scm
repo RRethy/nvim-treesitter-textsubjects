@@ -1,12 +1,12 @@
-((method name: (_) parameters: (_) . (_) @_start @_end (_)? @_end . "end") (#make-range! "range" @_start @_end))
-((method name: (_) !parameters . (_) @_start @_end (_)? @_end . "end") (#make-range! "range" @_start @_end))
+(method name: (_) parameters: (_) . (_)+ @range . "end")
+(method name: (_) !parameters . (_)+ @range . "end")
 
-((singleton_method object: (_) name: (_) parameters: (_) . (_) @_start @_end (_)? @_end . "end") (#make-range! "range" @_start @_end))
-((singleton_method object: (_) name: (_) !parameters . (_) @_start @_end (_)? @_end . "end") (#make-range! "range" @_start @_end))
+(singleton_method object: (_) name: (_) parameters: (_) . (_)+ @range . "end")
+(singleton_method object: (_) name: (_) !parameters . (_)+ @range . "end")
 
-((module name: (_) . (_) @_start @_end (_)? @_end . "end") (#make-range! "range" @_start @_end))
+(module name: (_) . (_)+ @range . "end")
 
-((class name: (_) superclass: (_) . (_) @_start @_end (_)? @_end . "end") (#make-range! "range" @_start @_end))
-((class name: (_) !superclass . (_) @_start @_end (_)? @_end . "end") (#make-range! "range" @_start @_end))
+(class name: (_) superclass: (_) . (_)+ @range . "end")
+(class name: (_) !superclass . (_)+ @range . "end")
 
-((singleton_class value: (_) . (_) @_start @_end (_)? @_end . "end") (#make-range! "range" @_start @_end))
+(singleton_class value: (_) . (_)+ @range . "end")

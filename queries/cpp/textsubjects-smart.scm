@@ -1,15 +1,13 @@
-((comment) @_start @_end
-    (#make-range! "range" @_start @_end))
+(comment) @range
 
 ; TODO This query doesn't work for comment groups at the start and end of a
 ; file
 ; See https://github.com/tree-sitter/tree-sitter/issues/1138
-(((_) @head . (comment) @_start . (comment)+ @_end (_) @tail)
+(((_) @head . (comment)+ @range (_) @tail)
     (#not-kind-eq? @tail "comment")
-    (#not-kind-eq? @head "comment")
-    (#make-range! "range" @_start @_end))
+    (#not-kind-eq? @head "comment"))
 
-(([
+([
     ; definition blocks
     (alias_declaration)
     (concept_definition)
@@ -69,48 +67,47 @@
     (parameter_list)
     (template_argument_list)
     (template_parameter_list)
-] @_start @_end)
-    (#make-range! "range" @_start @_end))
+] @range)
 
 ; elements of delimited lists
 ([
-    (argument_list (_) @_start @_end . ","? @_end)
-    (enumerator_list (_) @_start @_end . ","? @_end)
-    (field_initializer_list (_) @_start @_end . ","? @_end)
-    (initializer_list (_) @_start @_end . ","? @_end)
-    (parameter_list (_) @_start @_end . ","? @_end)
-    (template_argument_list (_) @_start @_end . ","? @_end)
-    (template_parameter_list (_) @_start @_end . ","? @_end)
-] (#make-range! "range" @_start @_end))
+    (argument_list (_) @range . ","? @range)
+    (enumerator_list (_) @range . ","? @range)
+    (field_initializer_list (_) @range . ","? @range)
+    (initializer_list (_) @range . ","? @range)
+    (parameter_list (_) @range . ","? @range)
+    (template_argument_list (_) @range . ","? @range)
+    (template_parameter_list (_) @range . ","? @range)
+])
 
 ; contents of keyword statements
 ([
-    (return_statement (_) @_start @_end)
-    (throw_statement (_) @_start @_end)
-    (co_return_statement (_) @_start @_end)
-    (co_yield_statement (_) @_start @_end)
-    (co_await_expression (_) @_start @_end)
+    (return_statement (_) @range)
+    (throw_statement (_) @range)
+    (co_return_statement (_) @range)
+    (co_yield_statement (_) @range)
+    (co_await_expression (_) @range)
     (new_expression
         ; exclude placement field
-        type: (_) @_start
-        arguments: (_) @_end)
-    (delete_expression (_) @_start @_end)
-] (#make-range! "range" @_start @_end))
+        type: (_) @range
+        arguments: (_) @range)
+    (delete_expression (_) @range)
+])
 
 ; the parenthesized parts of control flow statements
 ([
     ; if, while, switch
-    (condition_clause) @_start @_end
+    (condition_clause) @range
 
     ; do-while
-    (do_statement condition: (_) @_start @_end)
+    (do_statement condition: (_) @range)
 
     ; for contents, initializer, condition and update
-    (for_statement . "(" @_start (_)* ")" @_end . (_))
-    (for_statement initializer: (_) @_start @_end . ";" @_end)
-    (for_statement condition: (_) @_start @_end . ";" @_end)
-    (for_statement update: (_) @_start @_end)
+    (for_statement . "(" @range (_)* @range ")" @range . (_))
+    (for_statement initializer: (_) @range . ";" @range)
+    (for_statement condition: (_) @range . ";" @range)
+    (for_statement update: (_) @range)
 
     ; for range contents
-    (for_range_loop . "(" @_start (_)* ")" @_end . (_))
-] (#make-range! "range" @_start @_end))
+    (for_range_loop . "(" @range (_)* @range ")" @range . (_))
+])

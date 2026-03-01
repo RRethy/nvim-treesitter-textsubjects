@@ -1,26 +1,21 @@
 ;; Symbol
-((symbol) @_start @_end
-  (#make-range! "range" @_start @_end))
+(symbol) @range
 
 ;; Strings
 ;; :abc
 ;;  ^^^
-((string_content) @_start @_end
- (#make-range! "range" @_start @_end))
+(string_content) @range
 
 ;; Inner Seq
 ;; [...]
 ;;  ^^^
-((sequence . (_) @_start @_end (_)? @_end .)
- (#make-range! "range" @_start @_end))
+(sequence . (_)+ @range)
 
 ;; Inner Assoc
 ;; {...}
 ;;  ^^^
- ((table . (_) @_start @_end (_)? @_end .)
-  (#make-range! "range" @_start @_end))
+(table . (_)+ @range)
 
 ;; (x ...)
 ;;  ^^^^^
-((list . (_) @_start (_)* @_end)
- (#make-range! "range" @_start @_end))
+(list . (_)+ @range)

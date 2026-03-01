@@ -1,4 +1,4 @@
-(([
+([
     (generic_function)
     (macro_definition)
     (function_item)
@@ -6,5 +6,4 @@
     (struct_item)
     (enum_item)
     (impl_item)
-] @_start @_end)
-(#make-range! "range" @_start @_end))
+] @range)

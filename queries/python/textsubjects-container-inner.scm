@@ -1,2 +1,2 @@
-((function_definition body: (_) @_start @_end) (#make-range! "range" @_start @_end))
-((class_definition body: (_) @_start @_end) (#make-range! "range" @_start @_end))
+(function_definition body: (_) @range)
+(class_definition body: (_) @range)

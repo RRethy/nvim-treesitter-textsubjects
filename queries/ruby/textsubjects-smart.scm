@@ -1,15 +1,13 @@
-((comment) @_start @_end
-     (#make-range! "range" @_start @_end))
+(comment) @range
 
 ; TODO This query doesn't work for comment groups at the start and end of a
 ; file
 ; See https://github.com/tree-sitter/tree-sitter/issues/1138
-(((_) @head . (comment) @_start . (comment)+ @_end (_) @tail)
+(((_) @head . (comment)+ @range (_) @tail)
     (#not-kind-eq? @tail "comment")
-    (#not-kind-eq? @head "comment")
-    (#make-range! "range" @_start @_end))
+    (#not-kind-eq? @head "comment"))
 
-(([
+([
     (method)
     (call)
     (module)
@@ -21,13 +19,10 @@
     (for)
     (until)
     (while)
-] @_start @_end)
-(#make-range! "range" @_start @_end))
+] @range)
 
 ; sorbet type *annotation*
-(((call method: (identifier) @_start) . (method) @_end)
-    (#match? @_start "sig")
-    (#make-range! "range" @_start @_end))
+(((call method: (identifier) @range) . (method) @range)
+    (#match? @range "sig"))
 
-((return (_) @_start @_end)
-    (#make-range! "range" @_start @_end))
+(return (_) @range)

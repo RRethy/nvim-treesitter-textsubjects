@@ -1,19 +1,15 @@
 ;; :abc "abc"
 ;; ^^^^ ^^^^^
-((string) @_start @_end
- (#make-range! "range" @_start @_end))
+(string) @range
 
 ;; [...]
 ;; ^^^^^
-((sequence) @_start @_end
- (#make-range! "range" @_start @_end))
+(sequence) @range
 
 ;; {...}
 ;; ^^^^^
-((table) @_start @_end
- (#make-range! "range" @_start @_end))
+(table) @range
 
 ;; (x ...)
 ;; ^^^^^^^
-((list) @_start @_end
- (#make-range! "range" @_start @_end))
+(list) @range

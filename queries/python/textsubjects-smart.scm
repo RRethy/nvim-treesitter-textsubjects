@@ -1,15 +1,13 @@
-((comment) @_start @_end
-     (#make-range! "range" @_start @_end))
+(comment) @range
 
 ; TODO This query doesn't work for comment groups at the start and end of a
 ; file
 ; See https://github.com/tree-sitter/tree-sitter/issues/1138
-(((_) @head . (comment) @_start . (comment)+ @_end (_) @tail)
+(((_) @head . (comment)+ @range (_) @tail)
     (#not-kind-eq? @tail "comment")
-    (#not-kind-eq? @head "comment")
-    (#make-range! "range" @_start @_end))
+    (#not-kind-eq? @head "comment"))
 
-(([
+([
     (function_definition)
     (class_definition)
     (while_statement)
@@ -17,26 +15,18 @@
     (if_statement)
     (with_statement)
     (try_statement)
-] @_start @_end)
-(#make-range! "range" @_start @_end))
+] @range)
 
-((parameters (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(parameters (_) @range . ","? @range)
 
-((argument_list (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(argument_list (_) @range . ","? @range)
 
-((tuple (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(tuple (_) @range . ","? @range)
 
-((list (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(list (_) @range . ","? @range)
 
-((set (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(set (_) @range . ","? @range)
 
-((dictionary (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(dictionary (_) @range . ","? @range)
 
-((return_statement (_) @_start @_end)
-    (#make-range! "range" @_start @_end))
+(return_statement (_) @range)

@@ -1,40 +1,32 @@
 (class_declaration
-  body: (declaration_list . "{" . (_) @_start @_end (_)? @_end . "}"
- (#make-range! "range" @_start @_end)))
+  body: (declaration_list . "{" . (_)+ @range . "}"))
 
 (method_declaration
-  body: (compound_statement . "{" . (_) @_start @_end (_)? @_end . "}"
- (#make-range! "range" @_start @_end)))
+  body: (compound_statement . "{" . (_)+ @range . "}"))
 
 (function_definition
-  body: (compound_statement . "{" . (_) @_start @_end (_)? @_end . "}"
- (#make-range! "range" @_start @_end)))
+  body: (compound_statement . "{" . (_)+ @range . "}"))
 
 (if_statement
-  body: (compound_statement . "{" . (_) @_start @_end (_)? @_end . "}"
- (#make-range! "range" @_start @_end)))
+  body: (compound_statement . "{" . (_)+ @range . "}"))
 
 (foreach_statement
-  body: (compound_statement . "{" . (_) @_start @_end (_)? @_end . "}"
- (#make-range! "range" @_start @_end)))
+  body: (compound_statement . "{" . (_)+ @range . "}"))
 
 (for_statement
-  (compound_statement . "{" . (_) @_start @_end (_)? @_end . "}"
- (#make-range! "range" @_start @_end)))
+  (compound_statement . "{" . (_)+ @range . "}"))
 
 (while_statement
-  body: (compound_statement . "{" . (_) @_start @_end (_)? @_end . "}"
- (#make-range! "range" @_start @_end)))
+  body: (compound_statement . "{" . (_)+ @range . "}"))
 
 (switch_statement
-  body: (switch_block . "{" . (_) @_start @_end (_)? @_end . "}"
- (#make-range! "range" @_start @_end)))
+  body: (switch_block . "{" . (_)+ @range . "}"))
 
-((case_statement ."case" .(_) @_start @_end (_)? @_end) (#make-range! "range" @_start @_end))
+(case_statement ."case" .(_)+ @range)
 
-((array_creation_expression . "[" . (_) @_start @_end (_)? @_end . "]") (#make-range! "range" @_start @_end))
+(array_creation_expression . "[" . (_)+ @range . "]")
 
-((formal_parameters . "(" . (_) @_start @_end (_)? @_end . ")") (#make-range! "range" @_start @_end))
+(formal_parameters . "(" . (_)+ @range . ")")
 
-((arguments . "(" . (_) @_start @_end (_)? @_end . ")") (#make-range! "range" @_start @_end))
+(arguments . "(" . (_)+ @range . ")")
 

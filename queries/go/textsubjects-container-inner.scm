@@ -1,2 +1,2 @@
-((block . "{" . (_) @_start @_end (_)? @_end . "}") (#make-range! "range" @_start @_end))
-((field_declaration_list . "{" . (_) @_start @_end (_)? @_end . "}") (#make-range! "range" @_start @_end))
+(block "{" @range.extended _+ @range "}" @range.extended)
+(field_declaration_list "{" @range.extended _+ @range "}" @range.extended)

@@ -1,7 +1,6 @@
-((comment) @_start @_end
-     (#make-range! "range" @_start @_end))
+(comment) @range
 
-(([
+([
     (expression_statement)
     (function_definition)
     (method_declaration)
@@ -14,14 +13,10 @@
     (while_statement)
     (case_statement)
 
-] @_start @_end)
-(#make-range! "range" @_start @_end))
+] @range)
 
-((formal_parameters (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(formal_parameters (_) @range . ","? @range)
 
-((argument (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(argument (_) @range . ","? @range)
 
-((return_statement (_) @_start @_end)
-    (#make-range! "range" @_start @_end))
+(return_statement (_) @range)

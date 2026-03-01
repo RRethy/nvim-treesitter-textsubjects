@@ -1,14 +1,12 @@
-((comment) @_start @_end
-     (#make-range! "range" @_start @_end))
+(comment) @range
 
 ; TODO: This query doesn't work for comment groups at the start and end of a file
 ;       See: https://github.com/tree-sitter/tree-sitter/issues/1138
-(((_) @head . (comment) @_start . (comment)+ @_end (_) @tail)
+(((_) @head . (comment)+ @range (_) @tail)
     (#not-kind-eq? @tail "comment")
-    (#not-kind-eq? @head "comment")
-    (#make-range! "range" @_start @_end))
+    (#not-kind-eq? @head "comment"))
 
-(([
+([
     (function_call)
     (function_declaration)
     (function_definition)
@@ -17,17 +15,12 @@
     (repeat_statement)
     (if_statement)
     (for_statement)
-] @_start @_end)
-(#make-range! "range" @_start @_end))
+] @range)
 
-((parameters (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(parameters (_) @range . ","? @range)
 
-((arguments (_) @_start @_end . ","? @_end)
-    (#make-range! "range" @_start @_end))
+(arguments (_) @range . ","? @range)
 
-((table_constructor (_) @_start @_end . ["," ";"]? @_end)
-    (#make-range! "range" @_start @_end))
+(table_constructor (_) @range . ["," ";"]? @range)
 
-((return_statement (_) @_start @_end)
-    (#make-range! "range" @_start @_end))
+(return_statement (_) @range)

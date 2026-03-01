@@ -1,59 +1,48 @@
 ;; Symbol
-((symbol) @_start @_end
-  (#make-range! "range" @_start @_end))
+(symbol) @range
 
 ;; Strings
 ;; :abc
 ;;  ^^^
-((string_content) @_start @_end
- (#make-range! "range" @_start @_end))
+(string_content) @range
 ;; :abc "abc"
 ;; ^^^^ ^^^^^
-((string) @_start @_end
- (#make-range! "range" @_start @_end))
+(string) @range
 
 ;; Inner Seq
 ;; [...]
 ;;  ^^^
-((sequence . (_) @_start @_end (_)? @_end .)
- (#make-range! "range" @_start @_end))
+(sequence . (_)+ @range .)
 
 ;; Outer Seq
 ;; [...]
 ;; ^^^^^
-((sequence) @_start @_end
- (#make-range! "range" @_start @_end))
+(sequence) @range
 
 ;; Assoc k-v pair
 ;; {... :x y ...}
 ;;      ^^^^
 ;; {... : y ...}
 ;;      ^^^
-((table_pair) @_start @_end
-  (#make-range! "range" @_start @_end))
+(table_pair) @range
 
 ;; Inner Assoc
 ;; {...}
 ;;  ^^^
- ((table . (_) @_start @_end (_)? @_end .)
-  (#make-range! "range" @_start @_end))
+(table . (_)+ @range .)
 
 ;; Outer Assoc
 ;; {...}
 ;; ^^^^^
-((table) @_start @_end
- (#make-range! "range" @_start @_end))
+(table) @range
 
 ;; List arguments
 ;; (x ... ...)
 ;;    ^^^^^^^
-((list (symbol) . (_) @_start @_end (_)* @_end)
- (#make-range! "range" @_start @_end))
+(list (symbol) . (_)+ @range)
 ;; (x ...)
 ;;  ^^^^^
-((list . (_) @_start (_)* @_end)
- (#make-range! "range" @_start @_end))
+(list . (_)+ @range)
 ;; (x ...)
 ;; ^^^^^^^
-((list) @_start @_end
- (#make-range! "range" @_start @_end))
+(list) @range

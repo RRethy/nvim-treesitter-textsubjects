@@ -1,4 +1,4 @@
-(([
+([
     (array_creation_expression)
     (case_statement)
     (class_declaration)
@@ -11,5 +11,4 @@
     (return_statement)
     (switch_statement)
     (while_statement)
-] @_start @_end)
-(#make-range! "range" @_start @_end))
+] @range)

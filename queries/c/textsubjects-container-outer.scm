@@ -1,4 +1,4 @@
-(([
+([
     ; definition blocks
     (declaration)
     (function_definition)
@@ -14,6 +14,5 @@
     (enum_specifier)
     (struct_specifier)
     (union_specifier)
-  ] @_start @_end)
-    (#make-range! "range" @_start @_end))
+] @range)
 

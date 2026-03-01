@@ -1,4 +1,4 @@
-(([
+([
     (function_declaration)
     (lexical_declaration)
     (class_declaration)
@@ -6,5 +6,4 @@
     ; typescript
     (type_alias_declaration)
     (interface_declaration)
-] @_start @_end)
-(#make-range! "range" @_start @_end))
+] @range)

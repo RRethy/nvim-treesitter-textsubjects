@@ -1,7 +1,6 @@
-((comment) @_start @_end
-     (#make-range! "range" @_start @_end))
+(comment) @range
 
-(([
+([
     (left_assignment)
     (left_assignment2)
     (equals_assignment)
@@ -19,5 +18,4 @@
     (binary)
     (unary)
     (pipe)
-] @_start @_end)
-(#make-range! "range" @_start @_end))
+] @range)
